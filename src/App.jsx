@@ -101,7 +101,7 @@ export default function App() {
     finally { setLoading(false) }
   }
 
-  const navigate = (v, opts = {}) => { setView(v); setMenuOpen(false); if (v !== 'edit') setEditingClient(null); if (v !== 'view') setViewingClient(null); if (v !== 'viewPista' && v !== 'editPista') { setViewingPista(null); setEditingPista(false) } if (v !== 'viewOrder' && v !== 'newOrder') setViewingOrder(null); if (v === 'orders') { setOrdersKey(k => k + 1); setOrdersFiltro('Negociando') } if (v === 'activities' && !opts.keepModo) setActivitiesModo('pendientes') }
+  const navigate = (v, opts = {}) => { setView(v); setMenuOpen(false); if (v !== 'edit') setEditingClient(null); if (v !== 'view') setViewingClient(null); if (v !== 'viewPista' && v !== 'editPista') { setViewingPista(null); setEditingPista(false) } if (v !== 'viewOrder' && v !== 'newOrder') setViewingOrder(null); if (v === 'orders') { setOrdersKey(k => k + 1); setOrdersFiltro('Negociando') } if (v === 'activities' && !opts.keepModo) setActivitiesModo('pendientes'); if (v === 'pistas') setPistaOrigin('pistas') }
 
 
   const voiceSpeak = (texto) => {
@@ -257,7 +257,11 @@ export default function App() {
               fechaSeguimiento: fechaSeg,
               horaSeguimiento:  horaSeg,
               accionSeguimiento:p.accion                || '',
-              notaSeguimiento:  p.notasSeguimiento      || '',
+              notaSeguimiento:  p.notasSeguimientos     || '',
+              diasEnPista:      p.diasEnPista,
+              fechaRegistro:    p.fechaRegistro         || '',
+              fuente:           p.fuente                || '',
+              potencial:        p.potencial             || '',
             }
           })()
           setViewingPista(pista); setEditingPista(false); setPistaOrigin('midia'); setView('viewPista')
@@ -438,6 +442,10 @@ export default function App() {
                 horaSeguimiento:  horaSeg,
                 accionSeguimiento:p.accion                || '',
                 notaSeguimiento:  p.notasSeguimiento      || '',
+                diasEnPista:      p.diasEnPista,
+                fechaRegistro:    p.fechaRegistro         || '',
+                fuente:           p.fuente                || '',
+                potencial:        p.potencial             || '',
               }
             })()
             setViewingPista(pista); setEditingPista(false); setPistaOrigin('activities'); setView('viewPista')
