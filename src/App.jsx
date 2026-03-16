@@ -239,7 +239,22 @@ export default function App() {
       <main style={{ maxWidth: '680px', margin: '0 auto', padding: '40px 20px' }}>
 
         {/* ── DASHBOARD ─────────────────────────────────────────────────────── */}
-        {view === 'midia' && <MiDia key={midiaVista} onViewOrder={(o) => handleViewOrder(o, 'midia')} onViewPista={(p) => { setViewingPista(p); setEditingPista(false); setView('viewPista') }} onViewProximaSemana={(vista) => { setMidiaVista('hoy'); navigate(vista === 'semana' ? 'estaSemana' : 'proximaSemana') }} initialVista={midiaVista} />}
+        {view === 'midia' && <MiDia key={midiaVista} onViewOrder={(o) => handleViewOrder(o, 'midia')} onViewPista={(p) => {
+          // MiDia devuelve campos con prefijo "cliente" — mapear al formato de Pistas
+          const pista = p.nombre ? p : {
+            ...p,
+            nombre:           p.clienteNombre       || '',
+            negocio:          p.clienteNegocio       || '',
+            telefono:         p.clienteTelefono      || '',
+            email:            p.clienteEmail         || '',
+            direccion:        p.clienteDireccion     || '',
+            identificacion:   p.clienteIdentificacion|| '',
+            fechaSeguimiento: p.siguienteAccionFecha || '',
+            accionSeguimiento:p.accion               || '',
+            notaSeguimiento:  p.notasSeguimiento     || '',
+          }
+          setViewingPista(pista); setEditingPista(false); setView('viewPista')
+        }} onViewProximaSemana={(vista) => { setMidiaVista('hoy'); navigate(vista === 'semana' ? 'estaSemana' : 'proximaSemana') }} initialVista={midiaVista} />}
 
         {view === 'pistas' && (
           <PistasView onViewPista={(p) => { setViewingPista(p); setEditingPista(false); setView('viewPista') }} />
@@ -399,7 +414,21 @@ export default function App() {
 
         {/* ── ACTIVIDADES ───────────────────────────────────────────────────── */}
         {view === 'activities' && (
-          <ActividadesView key={activitiesKey} onViewOrder={(o) => handleViewOrder(o, 'activities')} onViewPista={(p) => { setViewingPista(p); setEditingPista(false); setView('viewPista') }} modoInicial={activitiesModo} />
+          <ActividadesView key={activitiesKey} onViewOrder={(o) => handleViewOrder(o, 'activities')} onViewPista={(p) => {
+            const pista = p.nombre ? p : {
+              ...p,
+              nombre:           p.clienteNombre       || '',
+              negocio:          p.clienteNegocio       || '',
+              telefono:         p.clienteTelefono      || '',
+              email:            p.clienteEmail         || '',
+              direccion:        p.clienteDireccion     || '',
+              identificacion:   p.clienteIdentificacion|| '',
+              fechaSeguimiento: p.siguienteAccionFecha || '',
+              accionSeguimiento:p.accion               || '',
+              notaSeguimiento:  p.notasSeguimiento     || '',
+            }
+            setViewingPista(pista); setEditingPista(false); setView('viewPista')
+          }} modoInicial={activitiesModo} />
         )}
 
         {/* ── ÓRDENES ───────────────────────────────────────────────────────── */}
