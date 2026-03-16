@@ -170,19 +170,21 @@ export function ViewPista({ pista, onBack, onEdit, showToast, backLabel = 'Volve
               )}
             </div>
             {/* Derecha */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
               {pista.potencial ? (
-                <span style={{ fontSize: '12px', fontWeight: '700', color: potencialColor(pista.potencial), background: potencialBg(pista.potencial), padding: '3px 10px', borderRadius: '20px' }}>
-                  {pista.potencial}
-                </span>
-              ) : (
-                <span style={{ fontSize: '12px', color: 'var(--border)' }}>Sin potencial</span>
-              )}
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '2px' }}>Potencial</div>
+                  <span style={{ fontSize: '13px', fontWeight: '700', color: potencialColor(pista.potencial), background: potencialBg(pista.potencial), padding: '2px 10px', borderRadius: '20px' }}>
+                    {pista.potencial}
+                  </span>
+                </div>
+              ) : null}
               {dias !== null && (
                 <span style={{ fontSize: '12px', color: 'var(--muted)', fontWeight: '500', whiteSpace: 'nowrap' }}>
                   {dias} {dias === 1 ? 'día' : 'días'} en pista
                 </span>
-              )}            </div>
+              )}
+            </div>
           </div>
 
           {/* Notas */}
