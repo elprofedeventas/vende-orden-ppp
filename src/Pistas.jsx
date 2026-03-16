@@ -116,7 +116,7 @@ export function PistasView({ onViewPista }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // VIEW PISTA
 // ─────────────────────────────────────────────────────────────────────────────
-export function ViewPista({ pista, onBack, onEdit, showToast }) {
+export function ViewPista({ pista, onBack, onEdit, showToast, backLabel = 'Volver a pistas' }) {
   const potencialColor = (p) => p === 'Alto' ? '#16a34a' : p === 'Medio' ? '#d97706' : p === 'Bajo' ? '#dc2626' : 'var(--muted)'
   const potencialBg    = (p) => p === 'Alto' ? '#f0fdf4' : p === 'Medio' ? '#fffbeb' : p === 'Bajo' ? '#fef2f2' : 'var(--cream)'
 
@@ -138,7 +138,7 @@ export function ViewPista({ pista, onBack, onEdit, showToast }) {
       {/* Volver + botón Editar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '600', padding: '0' }}>
-          <Icon d={icons.arrowLeft} size={15} /> Volver
+          <Icon d={icons.arrowLeft} size={15} /> {backLabel}
         </button>
         <button onClick={onEdit}
           style={{ padding: '8px 16px', background: 'var(--brand)', color: 'white', border: 'none', borderRadius: 'var(--radius)', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>

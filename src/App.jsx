@@ -42,6 +42,7 @@ export default function App() {
   const [viewingPista, setViewingPista] = useState(null)
   const [editingPista, setEditingPista] = useState(false)
   const [orderOrigin, setOrderOrigin] = useState('orders')
+  const [pistaOrigin, setPistaOrigin] = useState('pistas')
   const [orders, setOrders] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -195,9 +196,7 @@ export default function App() {
         if (data.esPista) {
           const partes = (data.siguienteAccionFecha || '').toString().split(' ')
           const pista = { ...data, nombre: data.clienteNombre || '', negocio: data.clienteNegocio || '', telefono: data.clienteTelefono || '', email: data.clienteEmail || '', direccion: data.clienteDireccion || '', identificacion: data.clienteIdentificacion || '', fechaSeguimiento: partes[0] || '', horaSeguimiento: partes[1] || '', accionSeguimiento: data.accion || '', notaSeguimiento: data.notasSeguimiento || '' }
-          setViewingPista(pista); setEditingPista(false); navigate('viewPista')
-        } else if (data.numOrden) {
-          setViewingOrder(data); setOrderOrigin('midia'); navigate('viewOrder')
+          setViewingPista(pista); setEditingPista(false); setPistaOrigin('midia'); navigate('viewPista')
         }
       }} />
 
@@ -206,8 +205,7 @@ export default function App() {
           if (data?.esPista) {
             const partes = (data.siguienteAccionFecha || '').toString().split(' ')
             const pista = { ...data, nombre: data.clienteNombre || '', negocio: data.clienteNegocio || '', telefono: data.clienteTelefono || '', email: data.clienteEmail || '', direccion: data.clienteDireccion || '', identificacion: data.clienteIdentificacion || '', fechaSeguimiento: partes[0] || '', horaSeguimiento: partes[1] || '', accionSeguimiento: data.accion || '', notaSeguimiento: data.notasSeguimientos || '' }
-            setViewingPista(pista); setEditingPista(false); navigate('viewPista')
-          } else if (data?.numOrden) {
+            setViewingPista(pista); setEditingPista(false); setPistaOrigin('midia'); navigate('viewPista')
             setViewingOrder(data); setOrderOrigin('midia'); navigate('viewOrder')
           }
         }}
@@ -244,7 +242,6 @@ export default function App() {
 
         {/* ── DASHBOARD ─────────────────────────────────────────────────────── */}
         {view === 'midia' && <MiDia key={midiaVista} onViewOrder={(o) => handleViewOrder(o, 'midia')} onViewPista={(p) => {
-          // MiDia devuelve campos con prefijo "cliente" — mapear al formato de Pistas
           const pista = p.nombre ? p : (() => {
             const partes = (p.siguienteAccionFecha || '').toString().split(' ')
             const fechaSeg = partes[0] || ''
@@ -263,15 +260,15 @@ export default function App() {
               notaSeguimiento:  p.notasSeguimiento      || '',
             }
           })()
-          setViewingPista(pista); setEditingPista(false); setView('viewPista')
+          setViewingPista(pista); setEditingPista(false); setPistaOrigin('midia'); setView('viewPista')
         }} onViewProximaSemana={(vista) => { setMidiaVista('hoy'); navigate(vista === 'semana' ? 'estaSemana' : 'proximaSemana') }} initialVista={midiaVista} />}
 
         {view === 'pistas' && (
-          <PistasView onViewPista={(p) => { setViewingPista(p); setEditingPista(false); setView('viewPista') }} />
+          <PistasView onViewPista={(p) => { setViewingPista(p); setEditingPista(false); setPistaOrigin('pistas'); setView('viewPista') }} />
         )}
 
         {view === 'viewPista' && viewingPista && (
-          <ViewPista pista={viewingPista} onBack={() => setView('pistas')} showToast={showToast}
+          <ViewPista pista={viewingPista} onBack={() => setView(pistaOrigin)} backLabel={pistaOrigin === 'midia' ? 'Volver a Mi día' : pistaOrigin === 'activities' ? 'Volver a Seguimiento' : 'Volver a pistas'} showToast={showToast}
             onEdit={() => { setEditingPista(true); setView('editPista') }} />
         )}
 
@@ -443,8 +440,7 @@ export default function App() {
                 notaSeguimiento:  p.notasSeguimiento      || '',
               }
             })()
-            setViewingPista(pista); setEditingPista(false); setView('viewPista')
-          }} modoInicial={activitiesModo} />
+            setViewingPista(pista); setEditingPista(false); setPistaOrigin('activities'); setView('viewPista')
         )}
 
         {/* ── ÓRDENES ───────────────────────────────────────────────────────── */}
