@@ -63,7 +63,7 @@ export function PistasView({ onViewPista }) {
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={{ fontFamily: 'var(--font-display)', fontWeight: '700', fontSize: '15px', marginBottom: '2px' }}>{p.nombre}</div>
                     {p.negocio   && <div style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '2px' }}>{p.negocio}</div>}
-                    {p.telefono  && <div style={{ fontSize: '13px', color: 'var(--ink)', marginBottom: '2px' }}>📞 {p.telefono}</div>}
+                    {p.telefono  && <div style={{ fontSize: '13px', color: '#16a34a', marginBottom: '2px' }}><a href={`https://wa.me/593${p.telefono.toString().replace(/\D/g,'').replace(/^0/,'')}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ color: '#16a34a', textDecoration: 'none', fontWeight: '600' }}>📞 {p.telefono}</a></div>}
                     {p.email     && <div style={{ fontSize: '13px', color: 'var(--ink)' }}>✉️ {p.email}</div>}
                   </div>
                   {/* Derecha */}
@@ -144,8 +144,9 @@ export function ViewPista({ pista, onBack, onEdit, showToast }) {
               <div style={{ fontFamily: 'var(--font-display)', fontWeight: '800', fontSize: '20px', letterSpacing: '-0.01em', marginBottom: '4px' }}>{pista.nombre}</div>
               {pista.negocio   && <div style={{ fontSize: '14px', color: 'var(--muted)', marginBottom: '4px' }}>{pista.negocio}</div>}
               {pista.telefono  && (
-                <a href={`tel:${pista.telefono}`}
-                  style={{ display: 'block', fontSize: '14px', color: 'var(--ink)', textDecoration: 'none', marginBottom: '3px', fontWeight: '600' }}>
+                <a href={`https://wa.me/593${pista.telefono.toString().replace(/\D/g,'').replace(/^0/,'')}`}
+                  target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'block', fontSize: '14px', color: '#16a34a', textDecoration: 'none', marginBottom: '3px', fontWeight: '600' }}>
                   📞 {pista.telefono}
                 </a>
               )}
