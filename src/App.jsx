@@ -12,6 +12,7 @@ import { EstaSemana, EstaSemanaVencidas } from './EstaSemana.jsx'
 import ProximaSemana from './ProximaSemana.jsx'
 import Laboratorio from './Laboratorio.jsx'
 import { CapturaRapida, ConversorRapido, WhatsAppRapido, Calculadora, CalendarioFlotante, NotasRapidas, PistaFuenteSelect, PistaAccionSelect } from './Utils.jsx'
+import Alertas from './Alertas.jsx'
 
 export default function App() {
   const [view, setView] = useState('midia')
@@ -188,6 +189,14 @@ export default function App() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--paper)' }} onClick={() => menuOpen && setMenuOpen(false)}>
+
+      <Alertas onNavegar={(data) => {
+        if (data.esPista) {
+          setViewingPista(data); setEditingPista(false); navigate('viewPista')
+        } else if (data.numOrden) {
+          setViewingOrder(data); setOrderOrigin('midia'); navigate('viewOrder')
+        }
+      }} />
 
       {/* Header */}
       <header style={{ background: 'var(--brand)', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '60px', position: 'sticky', top: 0, zIndex: 200 }}>
