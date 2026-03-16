@@ -20,7 +20,7 @@ function parseFechaHora(str) {
 // Si no existe, usamos defaults
 
 export default function Alertas({ onNavegar }) {
-  const timeoutsRef    = useRef([])   // lista de setTimeout ids activos
+  const timeoutsRef    = useRef([])   // lista de { id, tag } activos
   const posponerRef    = useRef([])   // ids de timers de posponer
   const swRef          = useRef(null) // ServiceWorkerRegistration
   const minutosAntesRef   = useRef(30)
@@ -117,11 +117,11 @@ export default function Alertas({ onNavegar }) {
 
     const id = setTimeout(() => {
       enviarNotificacion({ title, body, data, tag, minutosPosponer: minutosPosponerRef.current })
+      // Limpiar este timer de la lista al disparar
+      timeoutsRef.current = timeoutsRef.current.filter(t => t.tag !== tag)
     }, msParaAlerta)
 
-    timeoutsRef.current.push(id)
-
-    console.log(`[Alertas] Programada: ${actividad.clienteNombre} en ${Math.round(msParaAlerta / 60000)} min`)
+    timeoutsRef.current.push({ id, tag })
   }, [enviarNotificacion])
 
   // ─── Posponer una alerta X minutos ────────────────────────────────────────
@@ -153,13 +153,33 @@ export default function Alertas({ onNavegar }) {
       minutosAntesRef.current    = parseInt(minutosAntes)    || 30
       minutosPosponerRef.current = parseInt(minutosPosponer) || 10
 
-      // Limpiar timers anteriores
-      timeoutsRef.current.forEach(id => clearTimeout(id))
-      timeoutsRef.current = []
+      // Calcular qué tags nuevos necesitan programarse
+      const tagsActivos = new Set(timeoutsRef.current.map(t => t.tag))
 
-      // Programar una alerta por cada actividad de hoy con hora
+      // Cancelar solo los timers cuya actividad ya no existe en la lista nueva
+      const tagsNuevos = new Set((actividadesHoy || []).map(act => {
+        const fechaStr = act.siguienteAccionFecha
+        if (!fechaStr) return null
+        return act.numOrden
+          ? `orden-${act.numOrden}`
+          : `pista-${act.clienteNombre}-${fechaStr}`
+      }).filter(Boolean))
+
+      timeoutsRef.current = timeoutsRef.current.filter(t => {
+        if (!tagsNuevos.has(t.tag)) { clearTimeout(t.id); return false }
+        return true
+      })
+
+      // Programar solo las actividades que aún no tienen timer activo
       ;(actividadesHoy || []).forEach(act => {
-        programarAlerta(act, minutosAntesRef.current)
+        const fechaStr = act.siguienteAccionFecha
+        if (!fechaStr) return
+        const tag = act.numOrden
+          ? `orden-${act.numOrden}`
+          : `pista-${act.clienteNombre}-${fechaStr}`
+        if (!tagsActivos.has(tag)) {
+          programarAlerta(act, minutosAntesRef.current)
+        }
       })
     } catch (err) {
       console.warn('[Alertas] Error al cargar actividades:', err)
@@ -175,7 +195,7 @@ export default function Alertas({ onNavegar }) {
 
     return () => {
       clearInterval(intervalo)
-      timeoutsRef.current.forEach(id => clearTimeout(id))
+      timeoutsRef.current.forEach(t => clearTimeout(t.id))
       posponerRef.current.forEach(id => clearTimeout(id))
     }
   }, [cargarYProgramar])
