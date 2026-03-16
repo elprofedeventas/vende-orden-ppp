@@ -449,7 +449,7 @@ export default function App() {
               }
             })()
             setViewingPista(pista); setEditingPista(false); setPistaOrigin('activities'); setView('viewPista')
-        )}
+          }} modoInicial={activitiesModo} />
 
         {/* ── ÓRDENES ───────────────────────────────────────────────────────── */}
         {view === 'orders' && (
