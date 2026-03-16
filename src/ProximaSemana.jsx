@@ -3,7 +3,34 @@ import { API_BASE, Icon, icons, fmt, norm, formatFecha, getNowGuayaquil, getToda
 import { CardOrdenGlobal } from './OrdersView.jsx'
 import { EstaSemanaVencidas } from './EstaSemana.jsx'
 
-export default function ProximaSemana({ onViewOrder, onViewMiDia, onViewEstaSemana, initialVista }) {
+const potencialColorP = (p) => p === 'Alto' ? '#16a34a' : p === 'Medio' ? '#d97706' : '#dc2626'
+
+function CardPistaSimple({ pista, onViewPista, fmtM, mostrarDia }) {
+  const partes = (pista.siguienteAccionFecha||'').toString().split(' ')
+  const fecha = partes[0]||'', hora = partes[1]||''
+  return (
+    <div onClick={() => onViewPista && onViewPista(pista)}
+      style={{borderRadius:'var(--radius-lg)',overflow:'hidden',cursor:'pointer',boxShadow:'var(--shadow)',border:'1.5px solid var(--border)',transition:'box-shadow 0.15s'}}
+      onMouseEnter={e => e.currentTarget.style.boxShadow='var(--shadow-lg)'}
+      onMouseLeave={e => e.currentTarget.style.boxShadow='var(--shadow)'}>
+      <div style={{background:'#eff6ff',padding:'8px 14px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <span style={{fontSize:'12px',fontWeight:'800',color:'#2563eb'}}>{mostrarDia && fecha ? fecha : 'Pista'}{hora ? ` · ${hora}` : ''}</span>
+        <div style={{textAlign:'right'}}>
+          <span style={{fontSize:'11px',fontWeight:'700',color:'#2563eb',background:'white',padding:'1px 8px',borderRadius:'20px',display:'block',marginBottom:'2px',opacity:0.9}}>Pista</span>
+          {pista.potencial && <div style={{fontSize:'11px',fontWeight:'700',color:potencialColorP(pista.potencial)}}>Potencial {pista.potencial.toLowerCase()}</div>}
+          {(pista.diasEnPista !== undefined && pista.diasEnPista !== null) && <div style={{fontSize:'10px',color:'#2563eb',opacity:0.8}}>{Math.max(1,pista.diasEnPista)} {Math.max(1,pista.diasEnPista)===1?'día':'días'} en pista</div>}
+        </div>
+      </div>
+      <div style={{background:'#eff6ff',padding:'10px 14px'}}>
+        <div style={{fontFamily:'var(--font-display)',fontWeight:'700',fontSize:'15px',color:'var(--ink)'}}>{pista.clienteNombre}</div>
+        {pista.clienteNegocio && <div style={{fontSize:'13px',color:'var(--muted)',marginTop:'1px'}}>{pista.clienteNegocio}</div>}
+        {pista.accion && <div style={{fontSize:'12px',color:'#2563eb',fontWeight:'600',marginTop:'4px'}}>{pista.accion}</div>}
+      </div>
+    </div>
+  )
+}
+
+export default function ProximaSemana({ onViewOrder, onViewMiDia, onViewEstaSemana, onViewPista, initialVista }) {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [vistaActiva, setVistaActiva] = useState(initialVista || 'proxima')
@@ -101,11 +128,16 @@ export default function ProximaSemana({ onViewOrder, onViewMiDia, onViewEstaSema
   const { lunesProximo, finSemana, semanaLaboral, numSemana, pesoSemana,
           metaMes, valorXSemana,
           ordenesProximaSemana, ordenesVencidas, totalProximaSemana,
-          enCamino, faltante, diasVencidos1, diasVencidos2 } = data
+          enCamino, faltante, diasVencidos1, diasVencidos2,
+          pistasProximaSemana = [], pistasVencidas = [] } = data
+
+  // Mezclar órdenes y pistas
+  const todasProxima  = [...ordenesProximaSemana, ...pistasProximaSemana]
+  const todasVencidas = [...ordenesVencidas, ...pistasVencidas]
 
   // Filtrar vencidas por rango activo
   const limiteVenc = diasVencidos1 + diasExtraVenc
-  const vencidasFiltradas = ordenesVencidas.filter(o => {
+  const vencidasFiltradas = todasVencidas.filter(o => {
     const f = parseFecha(o.siguienteAccionFecha)
     if (!f) return false
     f.setHours(0,0,0,0)
@@ -114,7 +146,7 @@ export default function ProximaSemana({ onViewOrder, onViewMiDia, onViewEstaSema
   })
 
   // Sort lista próxima semana
-  const listaSorted = [...ordenesProximaSemana].sort((a,b) => {
+  const listaSorted = [...todasProxima].sort((a,b) => {
     if (sortField === 'fecha') {
       const fa = parseFecha(a.siguienteAccionFecha) || new Date(0)
       const fb = parseFecha(b.siguienteAccionFecha) || new Date(0)
@@ -243,7 +275,9 @@ export default function ProximaSemana({ onViewOrder, onViewMiDia, onViewEstaSema
           enCaminoEsta, faltanteEsta, numSemanaEsta, pesoSemanaEsta, valorXSemanaEsta = 0,
           ordenesVencidas = [], diasVencidos1, diasVencidos2,
           nombreUsuario,
+          pistasEstaSemana = [], pistasVencidas: pistasVenc2 = [],
         } = data
+        const todasEsta = [...ordenesEstaSemana, ...pistasEstaSemana]
 
         const tipoLabel = tipoSemana === 'LV' ? 'Lunes a viernes' : tipoSemana === 'LS' ? 'Lunes a sábado' : 'Lunes a domingo'
 
@@ -287,15 +321,18 @@ export default function ProximaSemana({ onViewOrder, onViewMiDia, onViewEstaSema
             <div>
               <div style={{ fontSize:'11px', fontWeight:'700', color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:'10px', display:'flex', alignItems:'center', gap:'6px' }}>
                 <Icon d={icons.calendar} size={13} />
-                Órdenes esta semana · {ordenesEstaSemana.length}
+                Actividades esta semana · {todasEsta.length}
               </div>
-              {ordenesEstaSemana.length === 0 ? (
+              {todasEsta.length === 0 ? (
                 <div style={{ background:'var(--white)', border:'1.5px dashed var(--border)', borderRadius:'var(--radius-lg)', padding:'20px', textAlign:'center', color:'var(--muted)', fontSize:'13px' }}>
-                  Sin órdenes programadas para esta semana
+                  Sin actividades programadas para esta semana
                 </div>
               ) : (
                 <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
-                  {ordenesEstaSemana.map(order => <CardOrden key={order.numOrden} order={order} mostrarDia={true} onClick={() => onViewOrder(order)} />)}
+                  {todasEsta.map(o => o.esPista
+                    ? <CardPistaSimple key={`pista-${o.rowIndex}`} pista={o} onViewPista={onViewPista} fmtM={fmtM} mostrarDia={true} />
+                    : <CardOrden key={o.numOrden} order={o} mostrarDia={true} onClick={() => onViewOrder(o)} />
+                  )}
                 </div>
               )}
             </div>
@@ -349,12 +386,12 @@ export default function ProximaSemana({ onViewOrder, onViewMiDia, onViewEstaSema
       <div style={{ marginBottom:'24px' }}>
         <div style={{ fontSize:'11px', fontWeight:'700', color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:'10px', display:'flex', alignItems:'center', gap:'6px' }}>
           <Icon d={icons.calendar} size={13} />
-          Actividades programadas · {ordenesProximaSemana.length}
+          Actividades programadas · {todasProxima.length}
         </div>
 
 
         {/* Sort */}
-        {ordenesProximaSemana.length > 0 && (
+        {todasProxima.length > 0 && (
           <div style={{ display:'flex', gap:'8px', marginBottom:'10px' }}>
             {[['fecha','Fecha'],['total','$']].map(([f,lbl]) => (
               <button key={f} onClick={() => toggleSort(f)}
@@ -371,7 +408,10 @@ export default function ProximaSemana({ onViewOrder, onViewMiDia, onViewEstaSema
           </div>
         ) : (
           <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
-            {listaSorted.map(o => <CardOrden key={o.numOrden} order={o} mostrarDia={true} />)}
+            {listaSorted.map(o => o.esPista
+              ? <CardPistaSimple key={`pista-${o.rowIndex}`} pista={o} onViewPista={onViewPista} fmtM={fmtM} mostrarDia={true} />
+              : <CardOrden key={o.numOrden} order={o} mostrarDia={true} />
+            )}
           </div>
         )}
       </div>

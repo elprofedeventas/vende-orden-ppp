@@ -272,7 +272,7 @@ export default function App() {
         )}
 
         {view === 'viewPista' && viewingPista && (
-          <ViewPista pista={viewingPista} onBack={() => setView(pistaOrigin)} backLabel={pistaOrigin === 'midia' ? 'Volver a Mi día' : pistaOrigin === 'activities' ? 'Volver a Seguimiento' : 'Volver a pistas'} showToast={showToast}
+          <ViewPista pista={viewingPista} onBack={() => setView(pistaOrigin)} backLabel={pistaOrigin === 'midia' ? 'Volver a Mi día' : pistaOrigin === 'activities' ? 'Volver a Seguimiento' : pistaOrigin === 'estaSemana' ? 'Volver a Esta semana' : pistaOrigin === 'proximaSemana' ? 'Volver a Próxima semana' : 'Volver a pistas'} showToast={showToast}
             onEdit={() => { setEditingPista(true); setView('editPista') }} />
         )}
 
@@ -281,9 +281,17 @@ export default function App() {
             onSave={(updated) => { setViewingPista(updated); setView('viewPista') }} />
         )}
 
-        {view === 'proximaSemana' && <ProximaSemana onViewOrder={(o) => handleViewOrder(o, 'proximaSemana')} onViewMiDia={(vista) => { setMidiaVista(vista || 'hoy'); navigate('midia') }} onViewEstaSemana={() => navigate('estaSemana')} />}
+        {view === 'proximaSemana' && <ProximaSemana onViewOrder={(o) => handleViewOrder(o, 'proximaSemana')} onViewMiDia={(vista) => { setMidiaVista(vista || 'hoy'); navigate('midia') }} onViewEstaSemana={() => navigate('estaSemana')} onViewPista={(p) => {
+          const partes = (p.siguienteAccionFecha || '').toString().split(' ')
+          const pista = p.nombre ? p : { ...p, nombre: p.clienteNombre||'', negocio: p.clienteNegocio||'', telefono: p.clienteTelefono||'', email: p.clienteEmail||'', direccion: p.clienteDireccion||'', identificacion: p.clienteIdentificacion||'', fechaSeguimiento: partes[0]||'', horaSeguimiento: partes[1]||'', accionSeguimiento: p.accion||'', notaSeguimiento: p.notasSeguimiento||'', diasEnPista: p.diasEnPista, fechaRegistro: p.fechaRegistro||'', fuente: p.fuente||'', potencial: p.potencial||'' }
+          setViewingPista(pista); setEditingPista(false); setPistaOrigin('proximaSemana'); setView('viewPista')
+        }} />}
 
-        {view === 'estaSemana' && <EstaSemana onViewOrder={(o) => handleViewOrder(o, 'estaSemana')} onViewMiDia={(vista) => { setMidiaVista(vista || 'hoy'); navigate('midia') }} onViewProximaSemana={() => navigate('proximaSemana')} />}
+        {view === 'estaSemana' && <EstaSemana onViewOrder={(o) => handleViewOrder(o, 'estaSemana')} onViewMiDia={(vista) => { setMidiaVista(vista || 'hoy'); navigate('midia') }} onViewProximaSemana={() => navigate('proximaSemana')} onViewPista={(p) => {
+          const partes = (p.siguienteAccionFecha || '').toString().split(' ')
+          const pista = p.nombre ? p : { ...p, nombre: p.clienteNombre||'', negocio: p.clienteNegocio||'', telefono: p.clienteTelefono||'', email: p.clienteEmail||'', direccion: p.clienteDireccion||'', identificacion: p.clienteIdentificacion||'', fechaSeguimiento: partes[0]||'', horaSeguimiento: partes[1]||'', accionSeguimiento: p.accion||'', notaSeguimiento: p.notasSeguimiento||'', diasEnPista: p.diasEnPista, fechaRegistro: p.fechaRegistro||'', fuente: p.fuente||'', potencial: p.potencial||'' }
+          setViewingPista(pista); setEditingPista(false); setPistaOrigin('estaSemana'); setView('viewPista')
+        }} />}
 
         {view === 'dashboard' && <Dashboard />}
 

@@ -2,7 +2,34 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { API_BASE, Icon, icons, fmt, norm, formatFecha, getNowGuayaquil, getTodayLabel, Field, DatePicker, Toast, Highlight, inputStyle, sectionTitle, EMPTY_FORM, DIAS, MESES_LARGO, CARD_STYLE, CARD_STYLE_COMPACT, BTN_PRIMARY, BTN_GHOST, BTN_DANGER, SECTION_HEADER, BADGE_BASE, PILL_STYLE, FLOAT_PANEL } from './shared.jsx'
 import { CardOrdenGlobal } from './OrdersView.jsx'
 
-export function EstaSemana({ onViewOrder, onViewMiDia, onViewProximaSemana }) {
+const potencialColor = (p) => p === 'Alto' ? '#16a34a' : p === 'Medio' ? '#d97706' : '#dc2626'
+
+function CardPistaSimple({ pista, onViewPista, fmtM, mostrarDia }) {
+  const partes = (pista.siguienteAccionFecha||'').toString().split(' ')
+  const fecha = partes[0]||'', hora = partes[1]||''
+  return (
+    <div onClick={() => onViewPista && onViewPista(pista)}
+      style={{borderRadius:'var(--radius-lg)',overflow:'hidden',cursor:'pointer',boxShadow:'var(--shadow)',border:'1.5px solid var(--border)',transition:'box-shadow 0.15s'}}
+      onMouseEnter={e => e.currentTarget.style.boxShadow='var(--shadow-lg)'}
+      onMouseLeave={e => e.currentTarget.style.boxShadow='var(--shadow)'}>
+      <div style={{background:'#eff6ff',padding:'8px 14px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <span style={{fontSize:'12px',fontWeight:'800',color:'#2563eb'}}>{mostrarDia && fecha ? fecha : 'Pista'}{hora ? ` · ${hora}` : ''}</span>
+        <div style={{textAlign:'right'}}>
+          <span style={{fontSize:'11px',fontWeight:'700',color:'#2563eb',background:'white',padding:'1px 8px',borderRadius:'20px',display:'block',marginBottom:'2px',opacity:0.9}}>Pista</span>
+          {pista.potencial && <div style={{fontSize:'11px',fontWeight:'700',color:potencialColor(pista.potencial)}}>Potencial {pista.potencial.toLowerCase()}</div>}
+          {(pista.diasEnPista !== undefined && pista.diasEnPista !== null) && <div style={{fontSize:'10px',color:'#2563eb',opacity:0.8}}>{Math.max(1,pista.diasEnPista)} {Math.max(1,pista.diasEnPista)===1?'día':'días'} en pista</div>}
+        </div>
+      </div>
+      <div style={{background:'#eff6ff',padding:'10px 14px'}}>
+        <div style={{fontFamily:'var(--font-display)',fontWeight:'700',fontSize:'15px',color:'var(--ink)'}}>{pista.clienteNombre}</div>
+        {pista.clienteNegocio && <div style={{fontSize:'13px',color:'var(--muted)',marginTop:'1px'}}>{pista.clienteNegocio}</div>}
+        {pista.accion && <div style={{fontSize:'12px',color:'#2563eb',fontWeight:'600',marginTop:'4px'}}>{pista.accion}</div>}
+      </div>
+    </div>
+  )
+}
+
+export function EstaSemana({ onViewOrder, onViewMiDia, onViewProximaSemana, onViewPista }) {
   const [data, setData]       = useState(null)
   const [loading, setLoading] = useState(true)
   const [diasExtra, setDiasExtra] = useState(0)
@@ -89,12 +116,23 @@ export function EstaSemana({ onViewOrder, onViewMiDia, onViewProximaSemana }) {
     ordenesEstaSemana = [], totalEstaSemana = 0,
     enCaminoEsta, faltanteEsta, numSemanaEsta, pesoSemanaEsta, valorXSemanaEsta = 0,
     ordenesVencidas = [], diasVencidos1 = 15, diasVencidos2 = 30,
+    pistasEstaSemana = [], pistasVencidas = [],
   } = data
 
   const tipoLabel = tipoSemana === 'LV' ? 'Lunes a viernes' : tipoSemana === 'LS' ? 'Lunes a sábado' : 'Lunes a domingo'
 
+  // Mezclar órdenes y pistas en una sola lista ordenada
+  const todasActividades = [
+    ...ordenesEstaSemana,
+    ...pistasEstaSemana,
+  ]
+  const todasVencidas = [
+    ...ordenesVencidas,
+    ...pistasVencidas,
+  ]
+
   // Sort actividades programadas
-  const ordenesSort = [...ordenesEstaSemana].sort((a,b) => {
+  const ordenesSort = [...todasActividades].sort((a,b) => {
     if (sortField==='fecha') {
       const fa = parseFecha(a.siguienteAccionFecha)||new Date(0)
       const fb = parseFecha(b.siguienteAccionFecha)||new Date(0)
@@ -105,7 +143,7 @@ export function EstaSemana({ onViewOrder, onViewMiDia, onViewProximaSemana }) {
 
   // Vencidas filtradas
   const limiteVenc = diasVencidos1 + diasExtra
-  const listaVenc = ordenesVencidas.filter(o => {
+  const listaVenc = todasVencidas.filter(o => {
     const f = parseFecha(o.siguienteAccionFecha)
     if (!f) return false
     const hoy2 = getNowGuayaquil(); hoy2.setHours(0,0,0,0)
@@ -189,7 +227,7 @@ export function EstaSemana({ onViewOrder, onViewMiDia, onViewProximaSemana }) {
       <div style={{marginBottom:'24px'}}>
         <div style={{fontSize:'11px',fontWeight:'700',color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:'10px',display:'flex',alignItems:'center',gap:'6px'}}>
           <Icon d={icons.calendar} size={13} />
-          Actividades programadas · {ordenesEstaSemana.length}
+          Actividades programadas · {todasActividades.length}
         </div>
         {/* Sort */}
         <div style={{display:'flex',gap:'8px',marginBottom:'10px'}}>
@@ -206,7 +244,10 @@ export function EstaSemana({ onViewOrder, onViewMiDia, onViewProximaSemana }) {
           </div>
         ) : (
           <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
-            {ordenesSort.map(o => <CardOrdenGlobal key={o.numOrden} order={o} mostrarDia={true} onClick={() => onViewOrder(o)} fmtM={fmtM} />)}
+            {ordenesSort.map(o => o.esPista
+              ? <CardPistaSimple key={`pista-${o.rowIndex}`} pista={o} onViewPista={onViewPista} fmtM={fmtM} mostrarDia={true} />
+              : <CardOrdenGlobal key={o.numOrden} order={o} mostrarDia={true} onClick={() => onViewOrder(o)} fmtM={fmtM} />
+            )}
           </div>
         )}
       </div>
