@@ -56,8 +56,8 @@ export function ConversorRapido() {
   }
 
   const handleChange = (e) => {
-    // Extraer solo dígitos y un punto decimal del input
-    const val = e.target.value.replace(/[^0-9.]/g, '')
+    // Aceptar tanto punto como coma como separador decimal, convertir coma a punto internamente
+    const val = e.target.value.replace(/,/g, '.').replace(/[^0-9.]/g, '')
     // Permitir solo un punto decimal
     const parts = val.split('.')
     const clean = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : val
