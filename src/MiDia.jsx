@@ -255,9 +255,14 @@ export default function MiDia({ onViewOrder, onViewPista, onViewProximaSemana, i
           <div style={{ textAlign:'right', flexShrink:0 }}>
             <span style={{ fontSize:'11px', fontWeight:'700', color:sec1Color, background:'var(--white)', padding:'1px 8px', borderRadius:'20px', display:'block', marginBottom:'3px', opacity:0.9 }}>{esPistaCard ? 'Pista' : order.estado}</span>
             {esPistaCard ? (
-              order.potencial
-                ? <div style={{ fontSize:'11px', fontWeight:'700', color:potencialColor(order.potencial) }}>Potencial {order.potencial.toLowerCase()}</div>
-                : null
+              <>
+                {order.potencial
+                  ? <div style={{ fontSize:'11px', fontWeight:'700', color:potencialColor(order.potencial) }}>Potencial {order.potencial.toLowerCase()}</div>
+                  : null}
+                {order.diasEnPista !== undefined
+                  ? <div style={{ fontSize:'10px', color:sec1Color, opacity:0.8, marginTop:'2px' }}>{order.diasEnPista} {order.diasEnPista === 1 ? 'día' : 'días'} en pista</div>
+                  : null}
+              </>
             ) : (
               <>
                 <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'15px', color:sec1Color }}>{fmtM(order.total)}</div>
@@ -275,7 +280,7 @@ export default function MiDia({ onViewOrder, onViewPista, onViewProximaSemana, i
             <div style={{ marginTop:'6px', display:'flex', flexDirection:'column', gap:'3px' }}>
               {contactos.map((ct, ci) => {
                 if (ct.type==='tel') return (
-                  <a key={ci} href={`tel:${ct.value.toString()}`}
+                  <a key={ci} href={`https://wa.me/593${ct.value.toString().replace(/^'+/,'').replace(/\D/g,'').replace(/^0/,'')}`}
                     target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
                     style={{ display:'inline-flex', alignItems:'center', gap:'4px', fontSize:'12px', fontWeight:'600', color:'#16a34a', textDecoration:'none' }}
                     onMouseEnter={e => e.currentTarget.style.textDecoration='underline'}
