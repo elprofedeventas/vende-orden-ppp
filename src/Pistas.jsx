@@ -74,7 +74,7 @@ export function PistasView({ onViewPista }) {
                       </span>
                     )}
                     <span style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: '500', whiteSpace: 'nowrap' }}>
-                      {p.diasEnPista} {p.diasEnPista === 1 ? 'día' : 'días'} en pista
+                      {Math.max(1, p.diasEnPista)} {Math.max(1, p.diasEnPista) === 1 ? 'día' : 'días'} en pista
                     </span>
                   </div>
                 </div>
@@ -122,7 +122,7 @@ export function ViewPista({ pista, onBack, onEdit, showToast, backLabel = 'Volve
 
   // Calcular días en pista: usar diasEnPista si viene, si no calcular desde fechaRegistro
   const calcDias = () => {
-    if (pista.diasEnPista !== undefined && pista.diasEnPista !== null) return pista.diasEnPista
+    if (pista.diasEnPista !== undefined && pista.diasEnPista !== null) return Math.max(1, pista.diasEnPista)
     if (!pista.fechaRegistro) return null
     const partes = pista.fechaRegistro.toString().split(' ')[0].split('/')
     if (partes.length < 3) return null
@@ -173,17 +173,18 @@ export function ViewPista({ pista, onBack, onEdit, showToast, backLabel = 'Volve
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
               {pista.potencial ? (
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '10px', fontWeight: '700', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '2px' }}>Potencial</div>
-                  <span style={{ fontSize: '13px', fontWeight: '700', color: potencialColor(pista.potencial), background: potencialBg(pista.potencial), padding: '2px 10px', borderRadius: '20px' }}>
-                    {pista.potencial}
+                  <span style={{ fontSize: '12px', fontWeight: '700', color: potencialColor(pista.potencial) }}>
+                    Potencial {pista.potencial.toLowerCase()}
                   </span>
+                  <div style={{ fontSize: '12px', color: 'var(--muted)', fontWeight: '500', whiteSpace: 'nowrap', marginTop: '4px' }}>
+                    {dias !== null ? `${Math.max(1, dias)} ${Math.max(1, dias) === 1 ? 'día' : 'días'} en pista` : ''}
+                  </div>
                 </div>
-              ) : null}
-              {dias !== null && (
+              ) : dias !== null ? (
                 <span style={{ fontSize: '12px', color: 'var(--muted)', fontWeight: '500', whiteSpace: 'nowrap' }}>
-                  {dias} {dias === 1 ? 'día' : 'días'} en pista
+                  {Math.max(1, dias)} {Math.max(1, dias) === 1 ? 'día' : 'días'} en pista
                 </span>
-              )}
+              ) : null}
             </div>
           </div>
 

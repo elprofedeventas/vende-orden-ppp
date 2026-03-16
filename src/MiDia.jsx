@@ -260,7 +260,7 @@ export default function MiDia({ onViewOrder, onViewPista, onViewProximaSemana, i
                   ? <div style={{ fontSize:'11px', fontWeight:'700', color:potencialColor(order.potencial), marginBottom:'2px' }}>Potencial {order.potencial.toLowerCase()}</div>
                   : null}
                 {(order.diasEnPista !== undefined && order.diasEnPista !== null)
-                  ? <div style={{ fontSize:'10px', color:sec1Color, opacity:0.8 }}>{order.diasEnPista} {order.diasEnPista === 1 ? 'día' : 'días'} en pista</div>
+                  ? <div style={{ fontSize:'10px', color:sec1Color, opacity:0.8 }}>{Math.max(1, order.diasEnPista)} {Math.max(1, order.diasEnPista) === 1 ? 'día' : 'días'} en pista</div>
                   : null}
               </>
             ) : (
