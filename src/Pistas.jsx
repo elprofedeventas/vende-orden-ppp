@@ -52,44 +52,59 @@ export function PistasView({ onViewPista }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {filtered.map((p, i) => (
             <div key={p.rowIndex} onClick={() => onViewPista(p)}
-              style={{ background: 'var(--white)', border: '1.5px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '14px 18px', cursor: 'pointer', transition: 'box-shadow 0.15s', animation: `fadeUp 0.2s ${Math.min(i,5)*0.04}s ease both` }}
-              onMouseEnter={e => e.currentTarget.style.boxShadow = 'var(--shadow)'}
+              style={{ background: 'var(--white)', border: '1.5px solid var(--border)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.15s', animation: `fadeUp 0.2s ${Math.min(i,5)*0.04}s ease both` }}
+              onMouseEnter={e => e.currentTarget.style.boxShadow = 'var(--shadow-lg)'}
               onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: '700', fontSize: '15px' }}>{p.nombre}</div>
-                  {p.negocio && <div style={{ fontSize: '13px', color: 'var(--muted)', marginTop: '1px' }}>{p.negocio}</div>}
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
-                    {p.telefono && (
-                      <a href={`https://wa.me/593${p.telefono.toString().replace(/\D/g,'').replace(/^0/,'')}`}
-                        target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: '600', color: '#16a34a', textDecoration: 'none' }}>
-                        <Icon d={icons.phone} size={12} />{p.telefono}
-                      </a>
-                    )}
-                    {p.email && (
-                      <a href={`mailto:${p.email}`} onClick={e => e.stopPropagation()}
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: '600', color: 'var(--brand)', textDecoration: 'none' }}>
-                        <Icon d={icons.mail} size={12} />{p.email}
-                      </a>
-                    )}
+
+              {/* Tarjeta blanca — datos del contacto */}
+              <div style={{ padding: '14px 18px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
+                  {/* Izquierda */}
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ fontFamily: 'var(--font-display)', fontWeight: '700', fontSize: '15px', marginBottom: '2px' }}>{p.nombre}</div>
+                    {p.negocio   && <div style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '2px' }}>{p.negocio}</div>}
+                    {p.telefono  && <div style={{ fontSize: '13px', color: 'var(--ink)', marginBottom: '2px' }}>📞 {p.telefono}</div>}
+                    {p.email     && <div style={{ fontSize: '13px', color: 'var(--ink)' }}>✉️ {p.email}</div>}
                   </div>
+                  {/* Derecha */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
+                    {p.potencial && (
+                      <span style={{ fontSize: '11px', fontWeight: '700', color: potencialColor(p.potencial), background: potencialBg(p.potencial), padding: '2px 8px', borderRadius: '20px' }}>
+                        {p.potencial}
+                      </span>
+                    )}
+                    <span style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: '500', whiteSpace: 'nowrap' }}>
+                      {p.diasEnPista} {p.diasEnPista === 1 ? 'día' : 'días'} en pista
+                    </span>
+                  </div>
+                </div>
+                {p.notas && (
+                  <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '8px', lineHeight: '1.5', borderTop: '1px solid var(--cream)', paddingTop: '8px' }}>
+                    {p.notas}
+                  </div>
+                )}
+              </div>
+
+              {/* Tarjeta negra — seguimiento */}
+              {(p.fechaSeguimiento || p.accionSeguimiento || p.notaSeguimiento) && (
+                <div style={{ background: '#1a1a2e', padding: '10px 18px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                  {p.fechaSeguimiento && (
+                    <div style={{ fontSize: '12px', fontWeight: '700', color: '#fbbf24' }}>
+                      📅 {p.fechaSeguimiento}{p.horaSeguimiento ? ` · ${p.horaSeguimiento}` : ''}
+                    </div>
+                  )}
                   {p.accionSeguimiento && (
-                    <div style={{ marginTop: '5px', fontSize: '12px', color: 'var(--brand)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Icon d={icons.calendar} size={11} />
-                      {p.fechaSeguimiento && `${p.fechaSeguimiento} · `}{p.accionSeguimiento}
+                    <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.85)', fontWeight: '600' }}>
+                      {p.accionSeguimiento}
+                    </div>
+                  )}
+                  {p.notaSeguimiento && (
+                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)', fontStyle: 'italic', marginTop: '2px' }}>
+                      {p.notaSeguimiento}
                     </div>
                   )}
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
-                  {p.potencial && (
-                    <span style={{ fontSize: '11px', fontWeight: '700', color: potencialColor(p.potencial), background: potencialBg(p.potencial), padding: '2px 8px', borderRadius: '20px' }}>
-                      {p.potencial}
-                    </span>
-                  )}
-                  <span style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: '500' }}>{p.diasEnPista} {p.diasEnPista === 1 ? 'día' : 'días'} en pista</span>
-                </div>
-              </div>
+              )}
             </div>
           ))}
         </div>
@@ -107,117 +122,108 @@ export function ViewPista({ pista, onBack, onEdit, showToast }) {
 
   return (
     <div style={{ animation: 'fadeUp 0.4s ease', paddingBottom: '40px' }}>
-      <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '600', padding: '0', marginBottom: '24px' }}>
-        <Icon d={icons.arrowLeft} size={15} /> Volver a pistas
-      </button>
-      <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: '800', fontSize: '24px', letterSpacing: '-0.02em', margin: 0 }}>{pista.nombre}</h1>
-          {pista.negocio && <p style={{ color: 'var(--muted)', fontSize: '13px', marginTop: '2px' }}>{pista.negocio}</p>}
-        </div>
+
+      {/* Volver + botón Editar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '600', padding: '0' }}>
+          <Icon d={icons.arrowLeft} size={15} /> Volver
+        </button>
         <button onClick={onEdit}
           style={{ padding: '8px 16px', background: 'var(--brand)', color: 'white', border: 'none', borderRadius: 'var(--radius)', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
-          Editar
+          ✏️ Editar
         </button>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0', borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: '1.5px solid var(--border)', boxShadow: 'var(--shadow)' }}>
 
-        {/* Estado + días */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--brand)', background: 'var(--brand-light)', padding: '3px 10px', borderRadius: '20px', border: '1px solid var(--brand)' }}>
-            Pista activa · {pista.diasEnPista} {pista.diasEnPista === 1 ? 'día' : 'días'}
-          </span>
-        </div>
-
-        {/* Calificación de la pista — siempre visible */}
-        <div style={{ background: 'var(--white)', border: '1.5px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '16px 20px', boxShadow: 'var(--shadow)' }}>
-          <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px' }}>Calificación de la pista</div>
-          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-            <div>
-              <div style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: '600', marginBottom: '4px' }}>Fuente de contacto</div>
-              <div style={{ fontSize: '14px', fontWeight: '600', color: pista.fuente ? 'var(--ink)' : 'var(--border)' }}>{pista.fuente || '—'}</div>
+        {/* Tarjeta blanca — contacto */}
+        <div style={{ background: 'var(--white)', padding: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+            {/* Izquierda */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: '800', fontSize: '20px', letterSpacing: '-0.01em', marginBottom: '4px' }}>{pista.nombre}</div>
+              {pista.negocio   && <div style={{ fontSize: '14px', color: 'var(--muted)', marginBottom: '4px' }}>{pista.negocio}</div>}
+              {pista.telefono  && (
+                <a href={`tel:${pista.telefono}`}
+                  style={{ display: 'block', fontSize: '14px', color: 'var(--ink)', textDecoration: 'none', marginBottom: '3px', fontWeight: '600' }}>
+                  📞 {pista.telefono}
+                </a>
+              )}
+              {pista.email     && (
+                <a href={`mailto:${pista.email}`}
+                  style={{ display: 'block', fontSize: '13px', color: 'var(--brand)', textDecoration: 'none' }}>
+                  ✉️ {pista.email}
+                </a>
+              )}
             </div>
-            <div>
-              <div style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: '600', marginBottom: '4px' }}>Potencial</div>
+            {/* Derecha */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0 }}>
               {pista.potencial ? (
-                <span style={{ fontSize: '13px', fontWeight: '700', color: potencialColor(pista.potencial), background: potencialBg(pista.potencial), padding: '2px 10px', borderRadius: '20px' }}>{pista.potencial}</span>
+                <span style={{ fontSize: '12px', fontWeight: '700', color: potencialColor(pista.potencial), background: potencialBg(pista.potencial), padding: '3px 10px', borderRadius: '20px' }}>
+                  {pista.potencial}
+                </span>
               ) : (
-                <div style={{ fontSize: '14px', color: 'var(--border)' }}>—</div>
+                <span style={{ fontSize: '12px', color: 'var(--border)' }}>Sin potencial</span>
+              )}
+              {pista.diasEnPista !== undefined && (
+                <span style={{ fontSize: '12px', color: 'var(--muted)', fontWeight: '500', whiteSpace: 'nowrap' }}>
+                  {pista.diasEnPista} {pista.diasEnPista === 1 ? 'día' : 'días'} en pista
+                </span>
               )}
             </div>
           </div>
+
+          {/* Notas */}
+          {pista.notas && (
+            <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid var(--cream)', fontSize: '13px', color: 'var(--muted)', lineHeight: '1.6' }}>
+              {pista.notas}
+            </div>
+          )}
         </div>
 
-        {/* Datos de contacto */}
-        <div style={{ background: 'var(--white)', border: '1.5px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '16px 20px', boxShadow: 'var(--shadow)' }}>
-          <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px' }}>Contacto</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {pista.identificacion && <div style={{ fontSize: '13px' }}><span style={{ color: 'var(--muted)', fontWeight: '600' }}>ID: </span>{pista.identificacion}</div>}
-            {pista.telefono && (
-              <a href={`https://wa.me/593${pista.telefono.toString().replace(/\D/g,'').replace(/^0/,'')}`}
-                target="_blank" rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '14px', fontWeight: '600', color: '#16a34a', textDecoration: 'none' }}>
-                <Icon d={icons.phone} size={15} />{pista.telefono}
-              </a>
+        {/* Tarjeta negra — seguimiento */}
+        <div style={{ background: '#1a1a2e', padding: '18px 20px' }}>
+          <div style={{ fontSize: '10px', fontWeight: '700', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Seguimiento</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {(pista.fechaSeguimiento || pista.horaSeguimiento) && (
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                {pista.fechaSeguimiento && (
+                  <div>
+                    <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '2px' }}>Fecha</div>
+                    <div style={{ fontSize: '14px', fontWeight: '700', color: '#fbbf24' }}>{pista.fechaSeguimiento}</div>
+                  </div>
+                )}
+                {pista.horaSeguimiento && (
+                  <div>
+                    <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '2px' }}>Hora</div>
+                    <div style={{ fontSize: '14px', fontWeight: '700', color: '#fbbf24' }}>{pista.horaSeguimiento}</div>
+                  </div>
+                )}
+              </div>
             )}
-            {pista.email && (
-              <a href={`mailto:${pista.email}`}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '14px', fontWeight: '600', color: 'var(--brand)', textDecoration: 'none' }}>
-                <Icon d={icons.mail} size={15} />{pista.email}
-              </a>
+            {pista.accionSeguimiento && (
+              <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.9)', fontWeight: '600', marginTop: '2px' }}>
+                {pista.accionSeguimiento}
+              </div>
             )}
-            {pista.direccion && (
-              <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pista.direccion)}`}
-                target="_blank" rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--muted)', textDecoration: 'none' }}>
-                <Icon d={icons.map} size={14} />{pista.direccion}
-              </a>
+            {pista.notaSeguimiento && (
+              <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.55)', fontStyle: 'italic', lineHeight: '1.5', marginTop: '2px' }}>
+                {pista.notaSeguimiento}
+              </div>
             )}
-            {pista.contacto && <div style={{ fontSize: '13px' }}><span style={{ color: 'var(--muted)', fontWeight: '600' }}>Contacto: </span>{pista.contacto}{pista.telefonoContacto ? ` · ${pista.telefonoContacto}` : ''}</div>}
+            {!pista.fechaSeguimiento && !pista.accionSeguimiento && !pista.notaSeguimiento && (
+              <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>Sin seguimiento programado</div>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* Notas */}
-        {pista.notas && (
-          <div style={{ background: 'var(--white)', border: '1.5px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '16px 20px', boxShadow: 'var(--shadow)' }}>
-            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>Notas</div>
-            <div style={{ fontSize: '14px', color: 'var(--ink)', lineHeight: '1.6' }}>{pista.notas}</div>
-          </div>
-        )}
-
-        {/* Seguimiento */}
-        {true && (
-          <div style={{ background: 'var(--white)', border: '1.5px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '16px 20px', boxShadow: 'var(--shadow)' }}>
-            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Icon d={icons.calendar} size={13} />Seguimiento de pista
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {pista.accionSeguimiento && <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--brand)' }}>{pista.accionSeguimiento}</div>}
-              {pista.fechaSeguimiento && (
-                <div style={{ fontSize: '13px', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <Icon d={icons.calendar} size={13} />{pista.fechaSeguimiento}{pista.horaSeguimiento ? ` · ${pista.horaSeguimiento}` : ''}
-                </div>
-              )}
-              {pista.notaSeguimiento && (
-                <div style={{ fontSize: '13px', color: 'var(--ink)', fontStyle: 'italic', lineHeight: '1.5', marginTop: '4px', background: 'var(--cream)', borderRadius: '6px', padding: '8px 12px', borderLeft: '3px solid var(--brand)' }}>
-                  "{pista.notaSeguimiento}"
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Fecha de registro */}
-        <div style={{ fontSize: '12px', color: 'var(--muted)', textAlign: 'center' }}>
+      {/* Fecha de registro */}
+      {pista.fechaRegistro && (
+        <div style={{ fontSize: '12px', color: 'var(--muted)', textAlign: 'center', marginTop: '16px' }}>
           Registrado el {pista.fechaRegistro}
         </div>
-
-        {/* Volver abajo */}
-        <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '600', padding: '0', marginTop: '8px' }}>
-          <Icon d={icons.arrowLeft} size={15} /> Volver a pistas
-        </button>
-      </div>
+      )}
     </div>
   )
 }
@@ -272,7 +278,6 @@ export function EditPista({ pista, onSave, onCancel, showToast }) {
       const data = await res.json()
       if (data.success) {
         showToast(`✓ ${form.nombre} actualizado`)
-        fetch(`${API_BASE}?action=invalidarCache`).catch(() => {})
         onSave({ ...pista, ...form })
       } else {
         showToast('Error al guardar', 'error')
