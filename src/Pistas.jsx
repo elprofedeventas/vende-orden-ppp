@@ -67,11 +67,11 @@ export function PistasView({ onViewPista }) {
                     {p.email     && <div style={{ fontSize: '13px', color: 'var(--ink)' }}>✉️ {p.email}</div>}
                   </div>
                   {/* Derecha */}
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', flexShrink: 0 }}>
                     {p.potencial && (
-                      <span style={{ fontSize: '11px', fontWeight: '700', color: potencialColor(p.potencial), background: potencialBg(p.potencial), padding: '2px 8px', borderRadius: '20px' }}>
-                        {p.potencial}
-                      </span>
+                      <div style={{ fontSize: '11px', fontWeight: '700', color: potencialColor(p.potencial) }}>
+                        Potencial {p.potencial.toLowerCase()}
+                      </div>
                     )}
                     <span style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: '500', whiteSpace: 'nowrap' }}>
                       {Math.max(1, p.diasEnPista)} {Math.max(1, p.diasEnPista) === 1 ? 'día' : 'días'} en pista
