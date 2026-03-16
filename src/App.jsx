@@ -193,7 +193,9 @@ export default function App() {
 
       <Alertas onNavegar={(data) => {
         if (data.esPista) {
-          setViewingPista(data); setEditingPista(false); navigate('viewPista')
+          const partes = (data.siguienteAccionFecha || '').toString().split(' ')
+          const pista = { ...data, nombre: data.clienteNombre || '', negocio: data.clienteNegocio || '', telefono: data.clienteTelefono || '', email: data.clienteEmail || '', direccion: data.clienteDireccion || '', identificacion: data.clienteIdentificacion || '', fechaSeguimiento: partes[0] || '', horaSeguimiento: partes[1] || '', accionSeguimiento: data.accion || '', notaSeguimiento: data.notasSeguimiento || '' }
+          setViewingPista(pista); setEditingPista(false); navigate('viewPista')
         } else if (data.numOrden) {
           setViewingOrder(data); setOrderOrigin('midia'); navigate('viewOrder')
         }
@@ -202,7 +204,9 @@ export default function App() {
       <AlertaBanner
         onVer={(data) => {
           if (data?.esPista) {
-            setViewingPista(data); setEditingPista(false); navigate('viewPista')
+            const partes = (data.siguienteAccionFecha || '').toString().split(' ')
+            const pista = { ...data, nombre: data.clienteNombre || '', negocio: data.clienteNegocio || '', telefono: data.clienteTelefono || '', email: data.clienteEmail || '', direccion: data.clienteDireccion || '', identificacion: data.clienteIdentificacion || '', fechaSeguimiento: partes[0] || '', horaSeguimiento: partes[1] || '', accionSeguimiento: data.accion || '', notaSeguimiento: data.notasSeguimientos || '' }
+            setViewingPista(pista); setEditingPista(false); navigate('viewPista')
           } else if (data?.numOrden) {
             setViewingOrder(data); setOrderOrigin('midia'); navigate('viewOrder')
           }
