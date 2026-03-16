@@ -120,6 +120,18 @@ export function ViewPista({ pista, onBack, onEdit, showToast }) {
   const potencialColor = (p) => p === 'Alto' ? '#16a34a' : p === 'Medio' ? '#d97706' : p === 'Bajo' ? '#dc2626' : 'var(--muted)'
   const potencialBg    = (p) => p === 'Alto' ? '#f0fdf4' : p === 'Medio' ? '#fffbeb' : p === 'Bajo' ? '#fef2f2' : 'var(--cream)'
 
+  // Calcular días en pista: usar diasEnPista si viene, si no calcular desde fechaRegistro
+  const calcDias = () => {
+    if (pista.diasEnPista !== undefined && pista.diasEnPista !== null) return pista.diasEnPista
+    if (!pista.fechaRegistro) return null
+    const partes = pista.fechaRegistro.toString().split(' ')[0].split('/')
+    if (partes.length < 3) return null
+    const registro = new Date(parseInt(partes[2]), parseInt(partes[1]) - 1, parseInt(partes[0]))
+    const hoy = new Date(); hoy.setHours(0,0,0,0)
+    return Math.max(0, Math.floor((hoy - registro) / 86400000))
+  }
+  const dias = calcDias()
+
   return (
     <div style={{ animation: 'fadeUp 0.4s ease', paddingBottom: '40px' }}>
 
@@ -166,12 +178,11 @@ export function ViewPista({ pista, onBack, onEdit, showToast }) {
               ) : (
                 <span style={{ fontSize: '12px', color: 'var(--border)' }}>Sin potencial</span>
               )}
-              {pista.diasEnPista !== undefined && (
+              {dias !== null && (
                 <span style={{ fontSize: '12px', color: 'var(--muted)', fontWeight: '500', whiteSpace: 'nowrap' }}>
-                  {pista.diasEnPista} {pista.diasEnPista === 1 ? 'día' : 'días'} en pista
+                  {dias} {dias === 1 ? 'día' : 'días'} en pista
                 </span>
-              )}
-            </div>
+              )}            </div>
           </div>
 
           {/* Notas */}
