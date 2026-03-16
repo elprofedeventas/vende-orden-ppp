@@ -160,8 +160,8 @@ export default function Alertas({ onNavegar }) {
   useEffect(() => {
     cargarYProgramar()
 
-    // Recargar cada 60 min por si cambian las actividades
-    const intervalo = setInterval(cargarYProgramar, 60 * 60 * 1000)
+    // Recargar cada 2 min por si cambian las actividades
+    const intervalo = setInterval(cargarYProgramar, 2 * 60 * 1000)
 
     return () => {
       clearInterval(intervalo)
