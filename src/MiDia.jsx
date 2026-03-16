@@ -275,7 +275,7 @@ export default function MiDia({ onViewOrder, onViewPista, onViewProximaSemana, i
             <div style={{ marginTop:'6px', display:'flex', flexDirection:'column', gap:'3px' }}>
               {contactos.map((ct, ci) => {
                 if (ct.type==='tel') return (
-                  <a key={ci} href={`https://wa.me/593${ct.value.toString().replace(/\D/g,'').replace(/^0/,'')}`}
+                  <a key={ci} href={`tel:${ct.value.toString()}`}
                     target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
                     style={{ display:'inline-flex', alignItems:'center', gap:'4px', fontSize:'12px', fontWeight:'600', color:'#16a34a', textDecoration:'none' }}
                     onMouseEnter={e => e.currentTarget.style.textDecoration='underline'}
