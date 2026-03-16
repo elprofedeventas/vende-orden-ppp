@@ -13,6 +13,7 @@ import ProximaSemana from './ProximaSemana.jsx'
 import Laboratorio from './Laboratorio.jsx'
 import { CapturaRapida, ConversorRapido, WhatsAppRapido, Calculadora, CalendarioFlotante, NotasRapidas, PistaFuenteSelect, PistaAccionSelect } from './Utils.jsx'
 import Alertas from './Alertas.jsx'
+import AlertaBanner from './AlertaBanner.jsx'
 
 export default function App() {
   const [view, setView] = useState('midia')
@@ -197,6 +198,16 @@ export default function App() {
           setViewingOrder(data); setOrderOrigin('midia'); navigate('viewOrder')
         }
       }} />
+
+      <AlertaBanner
+        onVer={(data) => {
+          if (data?.esPista) {
+            setViewingPista(data); setEditingPista(false); navigate('viewPista')
+          } else if (data?.numOrden) {
+            setViewingOrder(data); setOrderOrigin('midia'); navigate('viewOrder')
+          }
+        }}
+      />
 
       {/* Header */}
       <header style={{ background: 'var(--brand)', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '60px', position: 'sticky', top: 0, zIndex: 200 }}>

@@ -55,12 +55,22 @@ export default function Alertas({ onNavegar }) {
     return perm === 'granted'
   }, [])
 
-  // ─── Enviar notificación via SW ─────────────────────────────────────────────
-  const enviarNotificacion = useCallback(({ title, body, data, tag }) => {
-    if (!swRef.current) return
-    navigator.serviceWorker.ready.then(reg => {
-      reg.active?.postMessage({ type: 'SHOW_NOTIFICATION', title, body, data, tag })
-    })
+  // ─── Enviar notificación via SW + banner interno + badge ───────────────────
+  const enviarNotificacion = useCallback(({ title, body, data, tag, minutosPosponer }) => {
+    // 1. Notificación del navegador (cuando está minimizada)
+    if (swRef.current) {
+      navigator.serviceWorker.ready.then(reg => {
+        reg.active?.postMessage({ type: 'SHOW_NOTIFICATION', title, body, data, tag })
+      })
+    }
+
+    // 2. Banner flotante (cuando la app está en pantalla)
+    window.__agregarAlertaBanner?.({ title, body, data, tag, minutosPosponer })
+
+    // 3. Badge en el ícono PWA
+    if ('setAppBadge' in navigator) {
+      navigator.setAppBadge(1).catch(() => {})
+    }
   }, [])
 
   // ─── Programar una alerta para una actividad ───────────────────────────────
@@ -106,7 +116,7 @@ export default function Alertas({ onNavegar }) {
     }
 
     const id = setTimeout(() => {
-      enviarNotificacion({ title, body, data, tag })
+      enviarNotificacion({ title, body, data, tag, minutosPosponer: minutosPosponerRef.current })
     }, msParaAlerta)
 
     timeoutsRef.current.push(id)
@@ -121,7 +131,7 @@ export default function Alertas({ onNavegar }) {
     const body  = data.accion || 'Seguimiento pendiente'
 
     const id = setTimeout(() => {
-      enviarNotificacion({ title, body, data, tag: `posponer-${Date.now()}` })
+      enviarNotificacion({ title, body, data, tag: `posponer-${Date.now()}`, minutosPosponer: minutos })
     }, minutos * 60 * 1000)
 
     posponerRef.current.push(id)
