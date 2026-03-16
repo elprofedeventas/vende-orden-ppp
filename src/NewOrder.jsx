@@ -33,28 +33,33 @@ export default function NewOrder({ onBack, onSaved, showToast }) {
     }).catch(() => {}).finally(() => setLoadingClientes(false))
   }, [clienteSearch])
 
-  const addItem = (producto) => {
-    setItems(prev => {
-      const exists = prev.find(i => i.producto.rowIndex === producto.rowIndex)
-      if (exists) return prev.map(i => i.producto.rowIndex === producto.rowIndex ? { ...i, cantidad: i.cantidad + 1 } : i)
-      return [...prev, { producto, cantidad: 1, descuento: 0 }]
-    })
+  const addItem = () => setItems(p => [...p, { prodCod: '', nombre: '', precio: 0, iva: 0, cantidad: 1, descuento: 0 }])
+  const removeItem = (idx) => setItems(p => p.filter((_, i) => i !== idx))
+  const updateItem = (idx, field, val) => setItems(p => p.map((it, i) => i === idx ? { ...it, [field]: val } : it))
+  const selectProd = (idx, cod) => {
+    const p = productos.find(p => p.codigo === cod)
+    if (p) setItems(prev => prev.map((it, i) => i === idx ? { ...it, prodCod: cod, nombre: p.nombre, precio: p.precio, iva: p.iva } : it))
   }
-  const removeItem = (idx) => setItems(prev => prev.filter((_, i) => i !== idx))
-  const updateItem = (idx, field, value) => setItems(prev => prev.map((item, i) => i === idx ? { ...item, [field]: parseFloat(value)||0 } : item))
 
   const calcTotals = () => {
     let sinIva = 0, ivaTotal = 0
-    items.forEach(({ producto, cantidad, descuento }) => { const sub = cantidad * producto.precio * (1 - descuento/100); sinIva += sub; ivaTotal += sub * (producto.iva/100) })
+    items.forEach(({ precio, cantidad, descuento, iva }) => {
+      const sub = precio * cantidad * (1 - (descuento||0) / 100)
+      sinIva += sub
+      ivaTotal += sub * ((iva||0) / 100)
+    })
     return { sinIva, ivaTotal, total: sinIva + ivaTotal }
   }
 
   const handleSave = async () => {
     if (!clienteSeleccionado) { showToast('Selecciona un cliente', 'error'); return }
     if (items.length === 0) { showToast('Agrega al menos un producto', 'error'); return }
+    if (items.some(it => !it.prodCod)) { showToast('Selecciona un producto en cada línea', 'error'); return }
     setSaving(true)
     try {
-      const lineItems = items.map(({ producto, cantidad, descuento }) => ({ codigo: producto.codigo, nombre: producto.nombre, cantidad, precioUnitario: producto.precio, iva: producto.iva, descuento }))
+      const lineItems = items.map(({ prodCod, nombre, precio, iva, cantidad, descuento }) => ({
+        codigo: prodCod, nombre, cantidad, precioUnitario: precio, iva, descuento: descuento||0
+      }))
       const params = new URLSearchParams({ action: 'createOrden', clienteNombre: clienteSeleccionado.nombre, clienteNegocio: clienteSeleccionado.negocio||'', estado, notas, siguienteAccionFecha: siguienteAccionFecha||'', horaAccion: horaAccion||'', accion: accion||'', notasSeguimiento: notasSeguimiento||'', items: JSON.stringify(lineItems) })
       const res = await fetch(`${API_BASE}?${params}`)
       const data = await res.json()
@@ -74,6 +79,7 @@ export default function NewOrder({ onBack, onSaved, showToast }) {
         <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: '800', fontSize: '28px', lineHeight: 1.1, letterSpacing: '-0.02em' }}>Crear orden</h1>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
         {/* Cliente */}
         <div style={{ background: 'var(--white)', border: '1.5px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '20px', boxShadow: 'var(--shadow)' }}>
           <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}><Icon d={icons.user} size={13} />Cliente</div>
@@ -105,57 +111,54 @@ export default function NewOrder({ onBack, onSaved, showToast }) {
             </div>
           )}
         </div>
-        {/* Productos */}
-        <div style={{ background: 'var(--white)', border: '1.5px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '20px', boxShadow: 'var(--shadow)' }}>
-          <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}><Icon d={icons.package} size={13} />Productos</div>
 
-          {/* Catálogo primero */}
-          {productos.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '24px', color: 'var(--muted)', fontSize: '13px' }}>No hay productos en el catálogo.<br />Agrégalos en la pestaña "Productos" del Sheet.</div>
+        {/* Productos — estilo Cotizador */}
+        <div style={{ background: 'var(--white)', border: '1.5px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '20px', boxShadow: 'var(--shadow)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'flex', alignItems: 'center', gap: '6px' }}><Icon d={icons.package} size={13} />Productos</div>
+            <button onClick={addItem} style={{ padding: '5px 12px', background: 'var(--brand)', color: 'white', border: 'none', borderRadius: 'var(--radius)', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>+ Agregar</button>
+          </div>
+
+          {items.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '24px', color: 'var(--muted)', fontSize: '13px', border: '1.5px dashed var(--border)', borderRadius: 'var(--radius)' }}>
+              Presiona <strong>+ Agregar</strong> para añadir productos
+            </div>
           ) : (
-            <div style={{ border: '1.5px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden', marginBottom: items.length > 0 ? '14px' : '0' }}>
-              {productos.map((p, i) => (
-                <div key={p.rowIndex} onClick={() => addItem(p)}
-                  style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: i < productos.length-1 ? '1px solid var(--cream)' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'background 0.1s' }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--cream)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                  <div><div style={{ fontWeight: '600', fontSize: '14px' }}>{p.nombre}</div><div style={{ fontSize: '12px', color: 'var(--muted)' }}>{p.categoria && `${p.categoria} · `}IVA {p.iva}% · {fmtMoney(p.precio)}</div></div>
-                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--accent-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)', flexShrink: 0 }}><Icon d={icons.plus} size={14} /></div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {items.map((it, idx) => (
+                <div key={idx} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr auto', gap: '8px', alignItems: 'center' }}>
+                  <select value={it.prodCod} onChange={e => selectProd(idx, e.target.value)} style={{ ...inputStyle, fontSize: '13px' }}>
+                    <option value="">— Producto —</option>
+                    {productos.map(p => <option key={p.codigo} value={p.codigo}>{p.nombre}</option>)}
+                  </select>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <label style={{ fontSize: '10px', color: 'var(--muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Cant.</label>
+                    <input type="number" min="1" value={it.cantidad} onChange={e => updateItem(idx, 'cantidad', parseInt(e.target.value)||1)} style={{ ...inputStyle, fontSize: '13px', textAlign: 'center' }} />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <label style={{ fontSize: '10px', color: 'var(--muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Desc. %</label>
+                    <input type="number" min="0" max="100" value={it.descuento} onChange={e => updateItem(idx, 'descuento', parseFloat(e.target.value)||0)} style={{ ...inputStyle, fontSize: '13px', textAlign: 'center' }} />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--muted)', whiteSpace: 'nowrap' }}>{fmtMoney(it.precio * it.cantidad * (1 - (it.descuento||0)/100) * (1 + (it.iva||0)/100))}</span>
+                    <button onClick={() => removeItem(idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', fontSize: '16px', padding: '0', lineHeight: 1 }}>✕</button>
+                  </div>
                 </div>
               ))}
             </div>
           )}
 
-          {/* Items elegidos abajo */}
           {items.length > 0 && (
-            <>
-              <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>Seleccionados</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {items.map((item, idx) => (
-                  <div key={idx} style={{ background: 'var(--cream)', borderRadius: 'var(--radius)', padding: '10px 12px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <div><div style={{ fontWeight: '700', fontSize: '14px' }}>{item.producto.nombre}</div><div style={{ fontSize: '12px', color: 'var(--muted)' }}>{fmtMoney(item.producto.precio)} · IVA {item.producto.iva}%</div></div>
-                      <button onClick={() => removeItem(idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: '4px' }}><Icon d={icons.x} size={15} /></button>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                      <div>
-                        <label style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Cantidad</label>
-                        <input type="number" min="1" value={item.cantidad} onChange={e => updateItem(idx, 'cantidad', e.target.value)} style={{ ...inputStyle, padding: '7px 10px', fontSize: '14px', marginTop: '4px' }} />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Descuento %</label>
-                        <input type="number" min="0" max="100" value={item.descuento} onChange={e => updateItem(idx, 'descuento', e.target.value)} style={{ ...inputStyle, padding: '7px 10px', fontSize: '14px', marginTop: '4px' }} />
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right', fontFamily: 'var(--font-display)', fontWeight: '800', fontSize: '14px', marginTop: '6px' }}>
-                      {fmtMoney((item.cantidad * item.producto.precio * (1 - item.descuento/100)) * (1 + item.producto.iva/100))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
+            <div style={{ borderTop: '1.5px solid var(--border)', marginTop: '12px', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {[['Subtotal sin IVA', sinIva], ['IVA', ivaTotal], ['Total', total]].map(([l, v]) => (
+                <div key={l} style={{ display: 'flex', justifyContent: 'space-between', fontSize: l === 'Total' ? '15px' : '13px', fontWeight: l === 'Total' ? '800' : '600', color: l === 'Total' ? 'var(--brand)' : 'var(--ink)' }}>
+                  <span>{l}</span><span>{fmtMoney(v)}</span>
+                </div>
+              ))}
+            </div>
           )}
         </div>
+
         {/* Estado y notas */}
         <div style={{ background: 'var(--white)', border: '1.5px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '20px', boxShadow: 'var(--shadow)' }}>
           <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '12px' }}>Estado y notas</div>
@@ -167,6 +170,7 @@ export default function NewOrder({ onBack, onSaved, showToast }) {
           </div>
           <textarea value={notas} onChange={e => setNotas(e.target.value)} placeholder="Notas de la orden..." style={{ ...inputStyle, resize: 'vertical', minHeight: '80px', lineHeight: '1.5', fontSize: '14px' }} />
         </div>
+
         {/* Siguiente acción */}
         <div style={{ background: 'var(--white)', border: '1.5px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '20px', boxShadow: 'var(--shadow)' }}>
           <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}><Icon d={icons.calendar} size={13} />Seguimiento</div>
@@ -192,7 +196,8 @@ export default function NewOrder({ onBack, onSaved, showToast }) {
             <textarea value={notasSeguimiento} onChange={e => setNotasSeguimiento(e.target.value)} placeholder="Detalles del seguimiento, acuerdos, próximos pasos..." style={{ ...inputStyle, resize: 'vertical', minHeight: '80px', lineHeight: '1.5', fontSize: '14px' }} />
           </div>
         </div>
-        {/* Resumen */}
+
+        {/* Resumen y guardar */}
         {items.length > 0 && (
           <div style={{ background: 'var(--brand)', borderRadius: 'var(--radius-lg)', padding: '20px', color: 'white' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
@@ -209,4 +214,3 @@ export default function NewOrder({ onBack, onSaved, showToast }) {
     </div>
   )
 }
-
