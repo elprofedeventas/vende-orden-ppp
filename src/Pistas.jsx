@@ -272,6 +272,7 @@ export function EditPista({ pista, onSave, onCancel, showToast }) {
       const data = await res.json()
       if (data.success) {
         showToast(`✓ ${form.nombre} actualizado`)
+        fetch(`${API_BASE}?action=invalidarCache`).catch(() => {})
         onSave({ ...pista, ...form })
       } else {
         showToast('Error al guardar', 'error')

@@ -95,7 +95,7 @@ export function ViewOrder({ order, onBack, onChangeEstado, showToast, backLabel 
       const params = new URLSearchParams({ action: 'updateOrdenEstado', rowIndex: order.rowIndex, estado: nuevoEstado })
       const res = await fetch(`${API_BASE}?${params}`)
       const data = await res.json()
-      if (data.success) { setEstado(nuevoEstado); onChangeEstado(order.rowIndex, nuevoEstado) }
+      if (data.success) { setEstado(nuevoEstado); onChangeEstado(order.rowIndex, nuevoEstado); fetch(`${API_BASE}?action=invalidarCache`).catch(() => {}) }
     } catch {}
     finally { setSaving(false) }
   }
@@ -111,6 +111,7 @@ export function ViewOrder({ order, onBack, onChangeEstado, showToast, backLabel 
       if (data.success) {
         setSiguienteAccionFecha(fechaHora) // sincronizar estado local con lo guardado
         showToast('✓ Guardado')
+        fetch(`${API_BASE}?action=invalidarCache`).catch(() => {})
       } else showToast(data.error || 'Error al guardar', 'error')
     } catch { showToast('Error de conexión', 'error') }
     finally { setSavingDetalle(false) }
