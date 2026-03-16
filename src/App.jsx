@@ -241,18 +241,24 @@ export default function App() {
         {/* ── DASHBOARD ─────────────────────────────────────────────────────── */}
         {view === 'midia' && <MiDia key={midiaVista} onViewOrder={(o) => handleViewOrder(o, 'midia')} onViewPista={(p) => {
           // MiDia devuelve campos con prefijo "cliente" — mapear al formato de Pistas
-          const pista = p.nombre ? p : {
-            ...p,
-            nombre:           p.clienteNombre       || '',
-            negocio:          p.clienteNegocio       || '',
-            telefono:         p.clienteTelefono      || '',
-            email:            p.clienteEmail         || '',
-            direccion:        p.clienteDireccion     || '',
-            identificacion:   p.clienteIdentificacion|| '',
-            fechaSeguimiento: p.siguienteAccionFecha || '',
-            accionSeguimiento:p.accion               || '',
-            notaSeguimiento:  p.notasSeguimiento     || '',
-          }
+          const pista = p.nombre ? p : (() => {
+            const partes = (p.siguienteAccionFecha || '').toString().split(' ')
+            const fechaSeg = partes[0] || ''
+            const horaSeg  = partes[1] || ''
+            return {
+              ...p,
+              nombre:           p.clienteNombre        || '',
+              negocio:          p.clienteNegocio        || '',
+              telefono:         p.clienteTelefono       || '',
+              email:            p.clienteEmail          || '',
+              direccion:        p.clienteDireccion      || '',
+              identificacion:   p.clienteIdentificacion || '',
+              fechaSeguimiento: fechaSeg,
+              horaSeguimiento:  horaSeg,
+              accionSeguimiento:p.accion                || '',
+              notaSeguimiento:  p.notasSeguimiento      || '',
+            }
+          })()
           setViewingPista(pista); setEditingPista(false); setView('viewPista')
         }} onViewProximaSemana={(vista) => { setMidiaVista('hoy'); navigate(vista === 'semana' ? 'estaSemana' : 'proximaSemana') }} initialVista={midiaVista} />}
 
@@ -415,18 +421,24 @@ export default function App() {
         {/* ── ACTIVIDADES ───────────────────────────────────────────────────── */}
         {view === 'activities' && (
           <ActividadesView key={activitiesKey} onViewOrder={(o) => handleViewOrder(o, 'activities')} onViewPista={(p) => {
-            const pista = p.nombre ? p : {
-              ...p,
-              nombre:           p.clienteNombre       || '',
-              negocio:          p.clienteNegocio       || '',
-              telefono:         p.clienteTelefono      || '',
-              email:            p.clienteEmail         || '',
-              direccion:        p.clienteDireccion     || '',
-              identificacion:   p.clienteIdentificacion|| '',
-              fechaSeguimiento: p.siguienteAccionFecha || '',
-              accionSeguimiento:p.accion               || '',
-              notaSeguimiento:  p.notasSeguimiento     || '',
-            }
+            const pista = p.nombre ? p : (() => {
+              const partes = (p.siguienteAccionFecha || '').toString().split(' ')
+              const fechaSeg = partes[0] || ''
+              const horaSeg  = partes[1] || ''
+              return {
+                ...p,
+                nombre:           p.clienteNombre        || '',
+                negocio:          p.clienteNegocio        || '',
+                telefono:         p.clienteTelefono       || '',
+                email:            p.clienteEmail          || '',
+                direccion:        p.clienteDireccion      || '',
+                identificacion:   p.clienteIdentificacion || '',
+                fechaSeguimiento: fechaSeg,
+                horaSeguimiento:  horaSeg,
+                accionSeguimiento:p.accion                || '',
+                notaSeguimiento:  p.notasSeguimiento      || '',
+              }
+            })()
             setViewingPista(pista); setEditingPista(false); setView('viewPista')
           }} modoInicial={activitiesModo} />
         )}
