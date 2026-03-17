@@ -253,7 +253,7 @@ export default function MiDia({ onViewOrder, onViewPista, onViewProximaSemana, i
         <div style={{ background:sec1Bg, padding:'8px 14px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:'10px' }}>
           <span style={{ fontSize:'12px', fontWeight:'800', color:sec1Color }}>{sec1Label}</span>
           <div style={{ textAlign:'right', flexShrink:0 }}>
-            <span style={{ fontSize:'11px', fontWeight:'700', color:sec1Color, background:'var(--white)', padding:'1px 8px', borderRadius:'20px', display:'block', marginBottom:'3px', opacity:0.9 }}>{esPistaCard ? 'Pista' : order.estado}</span>
+            <span style={{ fontSize:'11px', fontWeight:'700', color:sec1Color, display:'block', marginBottom:'3px' }}>{esPistaCard ? 'Pista' : order.estado}</span>
             {esPistaCard ? (
               order.potencial
                 ? <div style={{ fontSize:'11px', fontWeight:'700', color:potencialColor(order.potencial) }}>Potencial {order.potencial.toLowerCase()}</div>
