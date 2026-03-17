@@ -476,19 +476,23 @@ export default function ProximaSemana({ onViewOrder, onViewMiDia, onViewEstaSema
             })
             return (
               <>
-                <div style={{ background:'#fef2f2', border:'1.5px solid #fecaca', borderRadius:'var(--radius-lg)', padding:'16px 20px', marginBottom:'12px' }}>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'10px' }}>
-                    <div>
-                      <div style={{ fontSize:'10px', fontWeight:'700', color:'#dc2626', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'2px' }}>Dinero que estás dejando en la mesa</div>
-                      <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'22px', color:'#dc2626' }}>{fmtM(totalV)}</div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize:'10px', fontWeight:'700', color:'#dc2626', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'2px' }}>Recuperar</div>
-                      <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'22px', color:'#dc2626' }}>{fmtM(recuperar)}</div>
-                    </div>
+                <div style={{ borderRadius:'var(--radius-lg)', overflow:'hidden', border:`1.5px solid ${ok?'#bbf7d0':'#fecaca'}`, marginBottom:'12px' }}>
+                  <div style={{ background:ok?'#f0fdf4':'#fef2f2', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                    <div style={{ fontSize:'11px', fontWeight:'700', color:ok?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.08em' }}>Recuperar</div>
+                    <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'20px', color:ok?'#16a34a':'#dc2626' }}>{fmtM(recuperar)}</div>
                   </div>
-                  <div style={{ fontSize:'13px', fontWeight:'700', color:'#dc2626' }}>
-                    {ok ? '✓ Estás en camino' : `⚠ Te faltan ${fmtM(falt)} — necesitas prospectar más`}
+                  <div style={{ background:ok?'#f0fdf4':'#fef2f2', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', borderTop:`1px solid ${ok?'#bbf7d0':'#fecaca'}` }}>
+                    <div style={{ fontSize:'11px', fontWeight:'700', color:ok?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.08em' }}>En la mesa</div>
+                    <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'20px', color:ok?'#16a34a':'#dc2626' }}>{fmtM(totalV)}</div>
+                  </div>
+                  <div style={{ background:ok?'#f0fdf4':'#fef2f2', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', borderTop:`1px solid ${ok?'#bbf7d0':'#fecaca'}` }}>
+                    <div style={{ fontSize:'11px', fontWeight:'700', color:ok?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.08em' }}>{ok?'✓ Estás en camino':'⚠ Te faltan'}</div>
+                    {!ok && <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'20px', color:'#dc2626' }}>{fmtM(falt)}</div>}
+                  </div>
+                  <div style={{ background:ok?'#f0fdf4':'#fef2f2', padding:'10px 16px', borderTop:`1px solid ${ok?'#bbf7d0':'#fecaca'}` }}>
+                    <div style={{ fontSize:'13px', fontWeight:'700', color:ok?'#16a34a':'#dc2626' }}>
+                      {ok?'¡Tienes suficiente en juego para recuperar!':'Necesitas prospectar más esta semana'}
+                    </div>
                   </div>
                 </div>
 
