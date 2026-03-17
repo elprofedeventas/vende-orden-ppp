@@ -399,9 +399,9 @@ export default function MiDia({ onViewOrder, onViewPista, onViewProximaSemana, i
             <div style={{ borderRadius:'var(--radius-lg)', overflow:'hidden', border:`1.5px solid ${enCaminoHoy ? '#bbf7d0' : '#fecaca'}`, marginBottom:'16px' }}>
 
               {/* Sección 1: Necesitas */}
-              <div style={{ background: enCaminoHoy ? '#16a34a' : '#dc2626', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                <div style={{ fontSize:'11px', fontWeight:'700', color:'rgba(255,255,255,0.8)', textTransform:'uppercase', letterSpacing:'0.08em' }}>Necesitas</div>
-                <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'20px', color:'white' }}>{fmtM(valorX)}</div>
+              <div style={{ background: enCaminoHoy ? '#f0fdf4' : '#fef2f2', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <div style={{ fontSize:'11px', fontWeight:'700', color: enCaminoHoy ? '#16a34a' : '#dc2626', textTransform:'uppercase', letterSpacing:'0.08em' }}>Necesitas</div>
+                <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'20px', color: enCaminoHoy ? '#16a34a' : '#dc2626' }}>{fmtM(valorX)}</div>
               </div>
 
               {/* Sección 2: En juego hoy */}
@@ -417,7 +417,7 @@ export default function MiDia({ onViewOrder, onViewPista, onViewProximaSemana, i
               </div>
 
               {/* Sección 4: Mensaje */}
-              <div style={{ background: enCaminoHoy ? '#dcfce7' : '#fee2e2', padding:'10px 16px', borderTop:`1px solid ${enCaminoHoy ? '#bbf7d0' : '#fecaca'}` }}>
+              <div style={{ background: enCaminoHoy ? '#f0fdf4' : '#fef2f2', padding:'10px 16px', borderTop:`1px solid ${enCaminoHoy ? '#bbf7d0' : '#fecaca'}` }}>
                 <div style={{ fontSize:'13px', fontWeight:'700', color: enCaminoHoy ? '#16a34a' : '#dc2626' }}>
                   {enCaminoHoy ? '¡Tienes suficiente en juego para hoy!' : 'Necesitas prospectar o recuperar órdenes hoy'}
                 </div>
