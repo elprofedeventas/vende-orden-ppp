@@ -2,28 +2,73 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { API_BASE, Icon, icons, fmt, norm, formatFecha, getNowGuayaquil, getTodayLabel, Field, DatePicker, Toast, Highlight, inputStyle, sectionTitle, EMPTY_FORM, DIAS, MESES_LARGO, CARD_STYLE, CARD_STYLE_COMPACT, BTN_PRIMARY, BTN_GHOST, BTN_DANGER, SECTION_HEADER, BADGE_BASE, PILL_STYLE, FLOAT_PANEL } from './shared.jsx'
 import { CardOrdenGlobal } from './OrdersView.jsx'
 
-const potencialColor = (p) => p === 'Alto' ? '#16a34a' : p === 'Medio' ? '#d97706' : '#dc2626'
+const potencialColorFn = (p) => p === 'Alto' ? '#16a34a' : p === 'Medio' ? '#d97706' : '#dc2626'
 
-function CardPistaSimple({ pista, onViewPista, fmtM, mostrarDia }) {
-  const partes = (pista.siguienteAccionFecha||'').toString().split(' ')
-  const fecha = partes[0]||'', hora = partes[1]||''
+function parseFechaActGlobal(val) {
+  if (!val) return null
+  const s = val.toString().trim().split(' ')[0]
+  if (s.includes('/')) { const [d,m,y] = s.split('/'); return new Date(parseInt(y),parseInt(m)-1,parseInt(d)) }
+  if (s.includes('-')) { const [y,m,d] = s.split('-'); return new Date(parseInt(y),parseInt(m)-1,parseInt(d)) }
+  return null
+}
+
+function CardPistaSimple({ pista, onViewPista, fmtM }) {
+  const accion = (pista.accion || '').trim()
+  const fechaAct = parseFechaActGlobal(pista.siguienteAccionFecha)
+  const DIAS_ES = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
+  const MESES_ES2 = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
+  const fechaLabel = fechaAct
+    ? `${DIAS_ES[fechaAct.getDay()]} ${fechaAct.getDate()} de ${MESES_ES2[fechaAct.getMonth()]} ${fechaAct.getFullYear()}`
+    : ''
+  const hora = pista.siguienteAccionFecha?.toString().includes(' ') ? pista.siguienteAccionFecha.toString().split(' ')[1] : ''
+  const hoyD = getNowGuayaquil(); hoyD.setHours(0,0,0,0)
+  const fD = fechaAct ? new Date(fechaAct) : null; if (fD) fD.setHours(0,0,0,0)
+  const diffDias = fD ? Math.round((fD - hoyD) / 86400000) : 0
+  const sec1Label = diffDias < 0
+    ? `${Math.abs(diffDias)} ${Math.abs(diffDias)===1?'día':'días'} vencida`
+    : diffDias === 0 ? 'Hoy' : diffDias === 1 ? 'Mañana' : `En ${diffDias} días`
+  const telefono = pista.clienteTelefono || pista.telefono || ''
+  const email    = pista.clienteEmail    || pista.email    || ''
+  const nombre   = pista.clienteNombre   || pista.nombre   || ''
+  const negocio  = pista.clienteNegocio  || pista.negocio  || ''
+  const nota     = pista.notasSeguimiento || pista.notaSeguimiento || ''
+  const dias     = pista.diasEnPista
+
   return (
     <div onClick={() => onViewPista && onViewPista(pista)}
-      style={{borderRadius:'var(--radius-lg)',overflow:'hidden',cursor:'pointer',boxShadow:'var(--shadow)',border:'1.5px solid var(--border)',transition:'box-shadow 0.15s'}}
+      style={{ borderRadius:'var(--radius-lg)', overflow:'hidden', cursor:'pointer', boxShadow:'var(--shadow)', border:'1.5px solid var(--border)', transition:'box-shadow 0.15s' }}
       onMouseEnter={e => e.currentTarget.style.boxShadow='var(--shadow-lg)'}
       onMouseLeave={e => e.currentTarget.style.boxShadow='var(--shadow)'}>
-      <div style={{background:'#eff6ff',padding:'8px 14px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-        <span style={{fontSize:'12px',fontWeight:'800',color:'#2563eb'}}>{mostrarDia && fecha ? fecha : 'Pista'}{hora ? ` · ${hora}` : ''}</span>
-        <div style={{textAlign:'right'}}>
-          <span style={{fontSize:'11px',fontWeight:'700',color:'#2563eb',background:'white',padding:'1px 8px',borderRadius:'20px',display:'block',marginBottom:'2px',opacity:0.9}}>Pista</span>
-          {pista.potencial && <div style={{fontSize:'11px',fontWeight:'700',color:potencialColor(pista.potencial)}}>Potencial {pista.potencial.toLowerCase()}</div>}
-          {(pista.diasEnPista !== undefined && pista.diasEnPista !== null) && <div style={{fontSize:'10px',color:'#2563eb',opacity:0.8}}>{Math.max(1,pista.diasEnPista)} {Math.max(1,pista.diasEnPista)===1?'día':'días'} en pista</div>}
+      <div style={{ background:'#eff6ff', padding:'8px 14px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:'10px' }}>
+        <span style={{ fontSize:'12px', fontWeight:'800', color:'#2563eb' }}>{sec1Label}</span>
+        <div style={{ textAlign:'right', flexShrink:0 }}>
+          <span style={{ fontSize:'11px', fontWeight:'700', color:'#2563eb', background:'var(--white)', padding:'1px 8px', borderRadius:'20px', display:'block', marginBottom:'3px', opacity:0.9 }}>Pista</span>
+          {pista.potencial && <div style={{ fontSize:'11px', fontWeight:'700', color:potencialColorFn(pista.potencial) }}>Potencial {pista.potencial.toLowerCase()}</div>}
+          {(dias !== undefined && dias !== null) && <div style={{ fontSize:'10px', color:'#2563eb', opacity:0.8 }}>{Math.max(1,dias)} {Math.max(1,dias)===1?'día':'días'} en pista</div>}
         </div>
       </div>
-      <div style={{background:'#eff6ff',padding:'10px 14px'}}>
-        <div style={{fontFamily:'var(--font-display)',fontWeight:'700',fontSize:'15px',color:'var(--ink)'}}>{pista.clienteNombre}</div>
-        {pista.clienteNegocio && <div style={{fontSize:'13px',color:'var(--muted)',marginTop:'1px'}}>{pista.clienteNegocio}</div>}
-        {pista.accion && <div style={{fontSize:'12px',color:'#2563eb',fontWeight:'600',marginTop:'4px'}}>{pista.accion}</div>}
+      <div style={{ background:'#eff6ff', padding:'10px 14px' }}>
+        <div style={{ fontFamily:'var(--font-display)', fontWeight:'700', fontSize:'15px', color:'var(--ink)' }}>{nombre}</div>
+        {negocio && <div style={{ fontSize:'13px', color:'var(--muted)', marginTop:'1px' }}>{negocio}</div>}
+        {telefono && (
+          <div style={{ marginTop:'6px' }}>
+            <a href={`https://wa.me/593${telefono.toString().replace(/^'+/,'').replace(/\D/g,'').replace(/^0/,'')}`}
+              target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+              style={{ display:'inline-flex', alignItems:'center', gap:'4px', fontSize:'12px', fontWeight:'600', color:'#16a34a', textDecoration:'none' }}>
+              <Icon d={icons.phone} size={12} />{telefono}
+            </a>
+          </div>
+        )}
+      </div>
+      <div style={{ background:'#0f172a', padding:'10px 14px', borderTop:'1px solid #1e293b' }}>
+        {accion && <div style={{ fontSize:'12px', color:'#f8fafc', fontWeight:'700', marginBottom:'3px' }}>Actividad: {accion}</div>}
+        {fechaLabel && (
+          <div style={{ fontSize:'12px', fontWeight:'600', color:'#94a3b8', display:'flex', alignItems:'center', gap:'5px' }}>
+            <Icon d={icons.calendar} size={12} fill="#94a3b8" />
+            {fechaLabel}{hora ? ` · ${hora}` : ''}
+          </div>
+        )}
+        {nota && <div style={{ fontSize:'11px', color:'#64748b', marginTop:'4px', fontStyle:'italic' }}>{nota}</div>}
       </div>
     </div>
   )
