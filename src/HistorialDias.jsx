@@ -70,11 +70,21 @@ export default function HistorialDias() {
                 <div style={{ background: bg, padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--ink)' }}>
                     {(() => {
-                      const [dd, mm, yy] = d.fecha.split('/').map(Number)
-                      const fecha = new Date(yy, mm - 1, dd)
-                      const dias  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
-                      const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
-                      return `${dias[fecha.getDay()]} ${dd} de ${meses[mm-1]} ${yy}`
+                      const DIAS  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
+                      const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
+                      const s = d.fecha.toString().trim()
+                      let fecha = null
+                      if (s.includes('/')) {
+                        const [dd, mm, yy] = s.split('/').map(Number)
+                        fecha = new Date(yy, mm - 1, dd)
+                      } else if (s.includes('-')) {
+                        const [yy, mm, dd] = s.split('-').map(Number)
+                        fecha = new Date(yy, mm - 1, dd)
+                      } else {
+                        fecha = new Date(s)
+                      }
+                      if (!fecha || isNaN(fecha)) return s
+                      return `${DIAS[fecha.getDay()]} ${fecha.getDate()} de ${MESES[fecha.getMonth()]} ${fecha.getFullYear()}`
                     })()}
                   </div>
                   <span style={{ fontSize: '12px', fontWeight: '800', color }}>
