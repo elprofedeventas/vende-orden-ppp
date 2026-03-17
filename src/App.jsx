@@ -12,8 +12,6 @@ import { EstaSemana, EstaSemanaVencidas } from './EstaSemana.jsx'
 import ProximaSemana from './ProximaSemana.jsx'
 import Laboratorio from './Laboratorio.jsx'
 import { CapturaRapida, ConversorRapido, WhatsAppRapido, Calculadora, CalendarioFlotante, NotasRapidas, PistaFuenteSelect, PistaAccionSelect } from './Utils.jsx'
-import Alertas from './Alertas.jsx'
-import AlertaBanner from './AlertaBanner.jsx'
 
 export default function App() {
   const [view, setView] = useState('midia')
@@ -192,24 +190,6 @@ export default function App() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--paper)' }} onClick={() => menuOpen && setMenuOpen(false)}>
 
-      <Alertas onNavegar={(data) => {
-        if (data.esPista) {
-          const partes = (data.siguienteAccionFecha || '').toString().split(' ')
-          const pista = { ...data, nombre: data.clienteNombre || '', negocio: data.clienteNegocio || '', telefono: data.clienteTelefono || '', email: data.clienteEmail || '', direccion: data.clienteDireccion || '', identificacion: data.clienteIdentificacion || '', fechaSeguimiento: partes[0] || '', horaSeguimiento: partes[1] || '', accionSeguimiento: data.accion || '', notaSeguimiento: data.notasSeguimiento || '' }
-          setViewingPista(pista); setEditingPista(false); setPistaOrigin('midia'); navigate('viewPista')
-        }
-      }} />
-
-      <AlertaBanner
-        onVer={(data) => {
-          if (data?.esPista) {
-            const partes = (data.siguienteAccionFecha || '').toString().split(' ')
-            const pista = { ...data, nombre: data.clienteNombre || '', negocio: data.clienteNegocio || '', telefono: data.clienteTelefono || '', email: data.clienteEmail || '', direccion: data.clienteDireccion || '', identificacion: data.clienteIdentificacion || '', fechaSeguimiento: partes[0] || '', horaSeguimiento: partes[1] || '', accionSeguimiento: data.accion || '', notaSeguimiento: data.notasSeguimientos || '' }
-            setViewingPista(pista); setEditingPista(false); setPistaOrigin('midia'); navigate('viewPista')
-            setViewingOrder(data); setOrderOrigin('midia'); navigate('viewOrder')
-          }
-        }}
-      />
 
       {/* Header */}
       <header style={{ background: 'var(--brand)', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '60px', position: 'sticky', top: 0, zIndex: 200 }}>
