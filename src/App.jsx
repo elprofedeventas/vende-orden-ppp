@@ -72,22 +72,30 @@ export default function App() {
     let timerId = null
     const programarCierre = async () => {
       try {
+        const ahora = getNowGuayaquil()
+        const fechaHoy = `${String(ahora.getDate()).padStart(2,'0')}/${String(ahora.getMonth()+1).padStart(2,'0')}/${ahora.getFullYear()}`
+        // Si ya se registró hoy, no hacer nada
+        if (localStorage.getItem('cierreDia') === fechaHoy) return
         const res  = await fetch(`${API_BASE}?action=getMiDia`)
         const json = await res.json()
         if (!json.success) return
         const { horaCierre = '21:00', valorX = 0, totalVencido = 0, enCamino = false } = json.data
         const [hh, mm] = horaCierre.split(':').map(Number)
-        const ahora = getNowGuayaquil()
         const cierre = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), hh, mm, 0)
         const ms = cierre.getTime() - ahora.getTime()
         if (ms <= 0) return // ya pasó hoy
         timerId = setTimeout(async () => {
-          const fechaStr = `${String(ahora.getDate()).padStart(2,'0')}/${String(ahora.getMonth()+1).padStart(2,'0')}/${ahora.getFullYear()}`
-          const enJuego   = totalVencido
-          const necesitaba = valorX
-          const diferencia = enJuego - necesitaba
-          const estado = enCamino ? 'Verde' : 'Rojo'
-          await fetch(`${API_BASE}?action=registrarCierreDia&fecha=${encodeURIComponent(fechaStr)}&estado=${estado}&enJuego=${enJuego}&necesitaba=${necesitaba}&diferencia=${diferencia}`)
+          try {
+            const r2 = await fetch(`${API_BASE}?action=getMiDia`)
+            const j2 = await r2.json()
+            const vX = j2.success ? (j2.data.valorX      || valorX)      : valorX
+            const tV = j2.success ? (j2.data.totalVencido || totalVencido): totalVencido
+            const eC = j2.success ? j2.data.enCamino : enCamino
+            const estado     = eC ? 'Verde' : 'Rojo'
+            const diferencia = tV - vX
+            await fetch(`${API_BASE}?action=registrarCierreDia&fecha=${encodeURIComponent(fechaHoy)}&estado=${estado}&enJuego=${tV}&necesitaba=${vX}&diferencia=${diferencia}`)
+            localStorage.setItem('cierreDia', fechaHoy)
+          } catch {}
         }, ms)
       } catch {}
     }
