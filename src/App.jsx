@@ -434,28 +434,26 @@ export default function App() {
         {/* ── ACTIVIDADES ───────────────────────────────────────────────────── */}
         {view === 'activities' && (
           <ActividadesView key={activitiesKey} onViewOrder={(o) => handleViewOrder(o, 'activities')} onViewPista={(p) => {
-            const pista = p.nombre ? p : (() => {
-              const partes = (p.siguienteAccionFecha || '').toString().split(' ')
-              const fechaSeg = partes[0] || ''
-              const horaSeg  = partes[1] || ''
-              return {
-                ...p,
-                nombre:           p.clienteNombre        || '',
-                negocio:          p.clienteNegocio        || '',
-                telefono:         p.clienteTelefono       || '',
-                email:            p.clienteEmail          || '',
-                direccion:        p.clienteDireccion      || '',
-                identificacion:   p.clienteIdentificacion || '',
-                fechaSeguimiento: p.fechaSeguimiento      || fechaSeg,
-                horaSeguimiento:  p.horaSeguimiento       || horaSeg,
-                accionSeguimiento:p.accionSeguimiento     || p.accion || '',
-                notaSeguimiento:  p.notaSeguimiento       || p.notasSeguimiento || '',
-                diasEnPista:      p.diasEnPista,
-                fechaRegistro:    p.fechaRegistro         || '',
-                fuente:           p.fuente                || '',
-                potencial:        p.potencial             || '',
-              }
-            })()
+            const partes = (p.siguienteAccionFecha || '').toString().split(' ')
+            const fechaSeg = partes[0] || ''
+            const horaSeg  = partes[1] || ''
+            const pista = {
+              ...p,
+              nombre:           p.nombre            || p.clienteNombre        || '',
+              negocio:          p.negocio            || p.clienteNegocio       || '',
+              telefono:         p.telefono           || p.clienteTelefono      || '',
+              email:            p.email              || p.clienteEmail         || '',
+              direccion:        p.direccion          || p.clienteDireccion     || '',
+              identificacion:   p.identificacion     || p.clienteIdentificacion|| '',
+              fechaSeguimiento: p.fechaSeguimiento   || fechaSeg,
+              horaSeguimiento:  p.horaSeguimiento    || horaSeg,
+              accionSeguimiento:p.accionSeguimiento  || p.accion               || '',
+              notaSeguimiento:  p.notaSeguimiento    || p.notasSeguimiento     || '',
+              diasEnPista:      p.diasEnPista,
+              fechaRegistro:    p.fechaRegistro      || '',
+              fuente:           p.fuente             || '',
+              potencial:        p.potencial          || '',
+            }
             setViewingPista(pista); setEditingPista(false); setPistaOrigin('activities'); setView('viewPista')
           }} modoInicial={activitiesModo} />
         )}
