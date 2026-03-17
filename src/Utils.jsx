@@ -56,8 +56,8 @@ export function ConversorRapido() {
   }
 
   const handleChange = (e) => {
-    // Aceptar tanto punto como coma como separador decimal, convertir coma a punto internamente
-    const val = e.target.value.replace(/,/g, '.').replace(/[^0-9.]/g, '')
+    // Extraer solo dígitos y un punto decimal del input
+    const val = e.target.value.replace(/[^0-9.]/g, '')
     // Permitir solo un punto decimal
     const parts = val.split('.')
     const clean = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : val
@@ -219,27 +219,53 @@ export function Calculadora() {
 // CALENDARIO FLOTANTE
 // ─────────────────────────────────────────────────────────────────────────────
 export function CalendarioFlotante() {
-  const hoy = getNowGuayaquil()
-  const [mes, setMes] = useState(hoy.getMonth())
+  const hoy  = getNowGuayaquil()
+  const [mes,  setMes]  = useState(hoy.getMonth())
   const [anio, setAnio] = useState(hoy.getFullYear())
-  const [sel, setSel] = useState(null)
+  const [sel,  setSel]  = useState(null)
+  const [actividades, setActividades] = useState({})
+  const [loadingActs, setLoadingActs] = useState(false)
+  const [panelAbierto, setPanelAbierto] = useState(false)
 
-  const DIAS = ['L','M','M','J','V','S','D']
+  const DIAS  = ['L','M','M','J','V','S','D']
   const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+  const MESES_L = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
 
-  const primerDia = new Date(anio, mes, 1).getDay() // 0=dom
-  const offset = primerDia === 0 ? 6 : primerDia - 1 // lunes=0
-  const diasEnMes = new Date(anio, mes + 1, 0).getDate()
+  const primerDia  = new Date(anio, mes, 1).getDay()
+  const offset     = primerDia === 0 ? 6 : primerDia - 1
+  const diasEnMes  = new Date(anio, mes + 1, 0).getDate()
 
-  const prevMes = () => { if (mes === 0) { setMes(11); setAnio(a => a-1) } else setMes(m => m-1) }
-  const nextMes = () => { if (mes === 11) { setMes(0); setAnio(a => a+1) } else setMes(m => m+1) }
+  // Cargar actividades del mes
+  useEffect(() => {
+    setLoadingActs(true)
+    fetch(`${API_BASE}?action=getCalendario&mes=${mes+1}&anio=${anio}`)
+      .then(r => r.json())
+      .then(d => { if (d.success) setActividades(d.data || {}) })
+      .catch(() => {})
+      .finally(() => setLoadingActs(false))
+  }, [mes, anio])
+
+  const prevMes = () => { setSel(null); if (mes === 0) { setMes(11); setAnio(a => a-1) } else setMes(m => m-1) }
+  const nextMes = () => { setSel(null); if (mes === 11) { setMes(0); setAnio(a => a+1) } else setMes(m => m+1) }
 
   const isHoy = (d) => d === hoy.getDate() && mes === hoy.getMonth() && anio === hoy.getFullYear()
   const isSel = (d) => sel && sel.d === d && sel.m === mes && sel.a === anio
 
+  const keyDia = (d) => {
+    const dd = String(d).padStart(2,'0')
+    const mm = String(mes+1).padStart(2,'0')
+    return `${dd}/${mm}/${anio}`
+  }
+
+  const actsDelDia = (d) => actividades[keyDia(d)] || []
+
+  const colorPunto = (n) => n === 0 ? null : n === 1 ? '#16a34a' : n <= 3 ? '#d97706' : '#dc2626'
+
   const cells = []
   for (let i = 0; i < offset; i++) cells.push(null)
   for (let d = 1; d <= diasEnMes; d++) cells.push(d)
+
+  const selActs = sel ? actsDelDia(sel.d) : []
 
   return (
     <div style={{ padding:'12px' }}>
@@ -249,27 +275,116 @@ export function CalendarioFlotante() {
         <span style={{ fontFamily:'var(--font-display)', fontWeight:'700', fontSize:'14px' }}>{MESES[mes]} {anio}</span>
         <button onClick={nextMes} style={{ background:'none', border:'none', cursor:'pointer', color:'var(--muted)', fontSize:'18px', padding:'4px 8px' }}>›</button>
       </div>
+
       {/* Días semana */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:'2px', marginBottom:'4px' }}>
         {DIAS.map((d,i) => <div key={i} style={{ textAlign:'center', fontSize:'11px', fontWeight:'700', color:'var(--muted)', padding:'4px 0' }}>{d}</div>)}
       </div>
+
       {/* Celdas */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:'2px' }}>
-        {cells.map((d, i) => (
-          <div key={i} onClick={() => d && setSel({ d, m: mes, a: anio })}
-            style={{ textAlign:'center', padding:'7px 0', borderRadius:'50%', fontSize:'13px', fontWeight: isHoy(d) ? '800' : '500', cursor: d ? 'pointer' : 'default',
-              background: isSel(d) ? '#7c3aed' : isHoy(d) ? '#ede9fe' : 'transparent',
-              color: isSel(d) ? 'white' : isHoy(d) ? '#7c3aed' : d ? 'var(--ink)' : 'transparent',
-              transition:'background 0.1s' }}>
-            {d || ''}
-          </div>
-        ))}
+        {cells.map((d, i) => {
+          const acts = d ? actsDelDia(d) : []
+          const n    = acts.length
+          const col  = colorPunto(n)
+          return (
+            <div key={i} onClick={() => { if (!d) return; setSel({ d, m: mes, a: anio }); setPanelAbierto(true) }}
+              style={{ textAlign:'center', padding:'5px 0 3px', borderRadius:'8px', fontSize:'13px',
+                fontWeight: isHoy(d) ? '800' : '500',
+                cursor: d ? 'pointer' : 'default',
+                background: isSel(d) ? '#7c3aed' : isHoy(d) ? '#ede9fe' : 'transparent',
+                color: isSel(d) ? 'white' : isHoy(d) ? '#7c3aed' : d ? 'var(--ink)' : 'transparent',
+                transition:'background 0.1s',
+                position: 'relative',
+              }}>
+              <div>{d || ''}</div>
+              {d && col && (
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'2px', marginTop:'1px' }}>
+                  <div style={{ width:'5px', height:'5px', borderRadius:'50%', background: isSel(d) ? 'white' : col }} />
+                  {n > 1 && <div style={{ fontSize:'9px', fontWeight:'700', color: isSel(d) ? 'white' : col, lineHeight:1 }}>{n}</div>}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
-      {/* Fecha seleccionada */}
-      {sel && (
-        <div style={{ marginTop:'10px', padding:'8px 12px', background:'#ede9fe', borderRadius:'var(--radius)', fontSize:'13px', fontWeight:'600', color:'#7c3aed', textAlign:'center' }}>
-          {sel.d} de {MESES[sel.m]} {sel.a}
-        </div>
+
+      {loadingActs && (
+        <div style={{ textAlign:'center', fontSize:'11px', color:'var(--muted)', marginTop:'8px' }}>Cargando actividades...</div>
+      )}
+
+      {/* Panel deslizable */}
+      {panelAbierto && sel && (
+        <>
+          {/* Overlay */}
+          <div onClick={() => setPanelAbierto(false)}
+            style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.3)', zIndex:1000 }} />
+          {/* Panel */}
+          <div style={{
+            position:'fixed', bottom:0, left:0, right:0, zIndex:1001,
+            background:'var(--white)', borderRadius:'16px 16px 0 0',
+            boxShadow:'0 -4px 24px rgba(0,0,0,0.15)',
+            maxHeight:'70vh', overflowY:'auto',
+            animation:'slideUp 0.25s ease',
+          }}>
+            <style>{`@keyframes slideUp { from { transform:translateY(100%) } to { transform:translateY(0) } }`}</style>
+
+            {/* Handle */}
+            <div style={{ display:'flex', justifyContent:'center', padding:'10px 0 4px' }}>
+              <div style={{ width:'36px', height:'4px', borderRadius:'2px', background:'var(--border)' }} />
+            </div>
+
+            {/* Header */}
+            <div style={{ padding:'8px 20px 14px', borderBottom:'1px solid var(--border)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <div>
+                <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'17px' }}>
+                  {sel.d} de {MESES_L[sel.m]} {sel.a}
+                </div>
+                <div style={{ fontSize:'12px', color:'var(--muted)', marginTop:'2px' }}>
+                  {selActs.length === 0 ? '✓ Día disponible' : `${selActs.length} ${selActs.length === 1 ? 'actividad' : 'actividades'}`}
+                </div>
+              </div>
+              <button onClick={() => setPanelAbierto(false)}
+                style={{ background:'var(--cream)', border:'none', borderRadius:'50%', width:'28px', height:'28px', cursor:'pointer', fontSize:'14px', color:'var(--muted)' }}>✕</button>
+            </div>
+
+            {/* Lista actividades */}
+            <div style={{ padding:'12px 16px', display:'flex', flexDirection:'column', gap:'8px' }}>
+              {selActs.length === 0 ? (
+                <div style={{ textAlign:'center', padding:'24px', color:'var(--muted)', fontSize:'14px' }}>
+                  <div style={{ fontSize:'28px', marginBottom:'8px' }}>📅</div>
+                  No hay actividades programadas para este día
+                </div>
+              ) : selActs.map((a, i) => (
+                <div key={i} style={{
+                  borderRadius:'var(--radius)',
+                  overflow:'hidden',
+                  border:`1.5px solid ${a.tipo === 'pista' ? '#bfdbfe' : 'var(--border)'}`,
+                }}>
+                  <div style={{
+                    background: a.tipo === 'pista' ? '#eff6ff' : '#f8fafc',
+                    padding:'8px 12px',
+                    display:'flex', justifyContent:'space-between', alignItems:'center',
+                  }}>
+                    <span style={{ fontSize:'11px', fontWeight:'700', color: a.tipo === 'pista' ? '#2563eb' : 'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em' }}>
+                      {a.tipo === 'pista' ? 'Pista' : 'Orden'}
+                    </span>
+                    {a.hora && (
+                      <span style={{ fontSize:'12px', fontWeight:'700', color: a.tipo === 'pista' ? '#2563eb' : 'var(--brand)' }}>
+                        🕐 {a.hora}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ padding:'8px 12px', background:'var(--white)' }}>
+                    <div style={{ fontFamily:'var(--font-display)', fontWeight:'700', fontSize:'14px' }}>{a.nombre}</div>
+                    {a.negocio && <div style={{ fontSize:'12px', color:'var(--muted)', marginTop:'1px' }}>{a.negocio}</div>}
+                    {a.accion  && <div style={{ fontSize:'12px', color:'var(--brand)', fontWeight:'600', marginTop:'4px' }}>{a.accion}</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
       )}
     </div>
   )
