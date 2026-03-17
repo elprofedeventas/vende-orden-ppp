@@ -68,7 +68,15 @@ export default function HistorialDias() {
               <div key={i} style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: `1.5px solid ${borde}` }}>
                 {/* Fila 1: fecha + estado */}
                 <div style={{ background: bg, padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--ink)' }}>{d.fecha}</div>
+                  <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--ink)' }}>
+                    {(() => {
+                      const [dd, mm, yy] = d.fecha.split('/').map(Number)
+                      const fecha = new Date(yy, mm - 1, dd)
+                      const dias  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
+                      const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
+                      return `${dias[fecha.getDay()]} ${dd} de ${meses[mm-1]} ${yy}`
+                    })()}
+                  </div>
                   <span style={{ fontSize: '12px', fontWeight: '800', color }}>
                     {verde ? '🟢 Verde' : '🔴 Rojo'}
                   </span>
