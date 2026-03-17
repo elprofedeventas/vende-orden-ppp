@@ -368,11 +368,10 @@ export default function ActividadesView({ onViewOrder, onViewPista, modoInicial 
                   <div style={{ background:s1Bg, padding:'8px 14px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:'10px' }}>
                     <span style={{ fontSize:'12px', fontWeight:'800', color:s1Color }}>{s1Label}</span>
                     <div style={{ textAlign:'right', flexShrink:0 }}>
-                      <span style={{ fontSize:'11px', fontWeight:'700', color:s1Color, background:'var(--white)', padding:'1px 8px', borderRadius:'20px', display:'block', marginBottom:'3px', opacity:0.9 }}>{esPistaCard2 ? 'Pista' : order.estado}</span>
+                      <span style={{ fontSize:'11px', fontWeight:'700', color:s1Color, display:'block', marginBottom:'3px' }}>{esPistaCard2 ? 'Pista' : order.estado}</span>
                       {!esPistaCard2 && order.total > 0 && <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'15px', color:s1Color }}>{fmtMoney(order.total)}</div>}
                       {order.numOrden && <div style={{ fontSize:'10px', color:s1Color, opacity:0.7 }}>{order.numOrden}</div>}
-                      {esPistaCard2 && order.potencial && <div style={{ fontSize:'11px', fontWeight:'700', color:s1Color, marginBottom:'2px' }}>Potencial {order.potencial.toLowerCase()}</div>}
-                      {esPistaCard2 && (order.diasEnPista !== undefined && order.diasEnPista !== null) && <div style={{ fontSize:'10px', color:s1Color, opacity:0.8 }}>{Math.max(1, order.diasEnPista)} {Math.max(1, order.diasEnPista) === 1 ? 'día' : 'días'} en pista</div>}
+                      {esPistaCard2 && order.potencial && <span style={{ fontSize:'11px', fontWeight:'700', color:s1Color }}>{order.potencial}</span>}
                     </div>
                   </div>
 
