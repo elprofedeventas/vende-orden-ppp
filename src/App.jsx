@@ -14,8 +14,6 @@ import Laboratorio from './Laboratorio.jsx'
 import { CapturaRapida, ConversorRapido, WhatsAppRapido, Calculadora, CalendarioFlotante, NotasRapidas, PistaFuenteSelect, PistaAccionSelect } from './Utils.jsx'
 import Alertas from './Alertas.jsx'
 import AlertaBanner from './AlertaBanner.jsx'
-import Alertas from './Alertas.jsx'
-import AlertaBanner from './AlertaBanner.jsx'
 
 export default function App() {
   const [view, setView] = useState('midia')
