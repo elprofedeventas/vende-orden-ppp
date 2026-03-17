@@ -217,8 +217,9 @@ export default function MiDia({ onViewOrder, onViewPista, onViewProximaSemana, i
       if (order.clienteEmail)     contactos.push({ type:'email', value:order.clienteEmail })
       if (order.clienteDireccion) contactos.push({ type:'dir',   value:order.clienteDireccion })
     } else {
-      if (order.clienteTelefono) contactos.push({ type:'tel', value:order.clienteTelefono })
-      if (order.clienteEmail)    contactos.push({ type:'email', value:order.clienteEmail })
+      if (order.clienteTelefono)  contactos.push({ type:'tel',   value:order.clienteTelefono })
+      if (order.clienteEmail)     contactos.push({ type:'email', value:order.clienteEmail })
+      if (order.clienteDireccion) contactos.push({ type:'dir',   value:order.clienteDireccion })
     }
 
     // Fecha formateada con día de la semana

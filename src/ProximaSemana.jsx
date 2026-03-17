@@ -59,6 +59,23 @@ function CardPistaSimple({ pista, onViewPista, fmtM }) {
             </a>
           </div>
         )}
+        {(pista.email || pista.clienteEmail) && (
+          <div style={{ marginTop:'3px' }}>
+            <a href={`mailto:${pista.email || pista.clienteEmail}`} onClick={e => e.stopPropagation()}
+              style={{ display:'inline-flex', alignItems:'center', gap:'4px', fontSize:'12px', fontWeight:'600', color:'var(--brand)', textDecoration:'none' }}>
+              <Icon d={icons.mail} size={12} />{pista.email || pista.clienteEmail}
+            </a>
+          </div>
+        )}
+        {(pista.direccion || pista.clienteDireccion) && (
+          <div style={{ marginTop:'3px' }}>
+            <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pista.direccion || pista.clienteDireccion)}`}
+              target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+              style={{ display:'inline-flex', alignItems:'center', gap:'4px', fontSize:'12px', fontWeight:'600', color:'var(--muted)', textDecoration:'none' }}>
+              <Icon d={icons.map} size={12} />{pista.direccion || pista.clienteDireccion}
+            </a>
+          </div>
+        )}
       </div>
       <div style={{ background:'#0f172a', padding:'10px 14px', borderTop:'1px solid #1e293b' }}>
         {accion && <div style={{ fontSize:'12px', color:'#f8fafc', fontWeight:'700', marginBottom:'3px' }}>Actividad: {accion}</div>}

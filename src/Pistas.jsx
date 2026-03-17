@@ -65,6 +65,7 @@ export function PistasView({ onViewPista }) {
                     {p.negocio   && <div style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '2px' }}>{p.negocio}</div>}
                     {p.telefono  && <div style={{ fontSize: '13px', color: '#16a34a', marginBottom: '2px' }}><a href={`https://wa.me/593${p.telefono.toString().replace(/\D/g,'').replace(/^0/,'')}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ color: '#16a34a', textDecoration: 'none', fontWeight: '600' }}>📞 {p.telefono}</a></div>}
                     {p.email     && <div style={{ fontSize: '13px', color: 'var(--ink)' }}>✉️ {p.email}</div>}
+                    {p.direccion && <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '1px' }}>📍 {p.direccion}</div>}
                   </div>
                   {/* Derecha */}
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', flexShrink: 0 }}>
@@ -164,8 +165,15 @@ export function ViewPista({ pista, onBack, onEdit, showToast, backLabel = 'Volve
               )}
               {pista.email     && (
                 <a href={`mailto:${pista.email}`}
-                  style={{ display: 'block', fontSize: '13px', color: 'var(--brand)', textDecoration: 'none' }}>
+                  style={{ display: 'block', fontSize: '13px', color: 'var(--brand)', textDecoration: 'none', marginBottom: '3px' }}>
                   ✉️ {pista.email}
+                </a>
+              )}
+              {pista.direccion && (
+                <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pista.direccion)}`}
+                  target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'block', fontSize: '13px', color: 'var(--muted)', textDecoration: 'none' }}>
+                  📍 {pista.direccion}
                 </a>
               )}
             </div>
