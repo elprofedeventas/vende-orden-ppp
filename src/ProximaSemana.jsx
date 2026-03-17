@@ -328,6 +328,11 @@ export default function ProximaSemana({ onViewOrder, onViewMiDia, onViewEstaSema
         return (
           <div style={{ display:'flex', flexDirection:'column', gap:'16px' }}>
             {/* Medidor esta semana */}
+            <div style={{ background:enCaminoEsta?'#16a34a':'#dc2626', borderRadius:'var(--radius-lg)', padding:'8px 16px', marginBottom:'8px', textAlign:'center' }}>
+              <span style={{ fontSize:'13px', fontWeight:'900', color:'white', letterSpacing:'0.12em', textTransform:'uppercase' }}>
+                {enCaminoEsta ? '🟢 Estás en verde' : '🔴 Estás en rojo'}
+              </span>
+            </div>
             <div style={{ borderRadius:'var(--radius-lg)', overflow:'hidden', border:`1.5px solid ${enCaminoEsta?'#bbf7d0':'#fecaca'}` }}>
               <div style={{ background:enCaminoEsta?'#f0fdf4':'#fef2f2', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <div style={{ fontSize:'11px', fontWeight:'700', color:enCaminoEsta?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.08em' }}>Necesitas</div>
@@ -398,6 +403,11 @@ export default function ProximaSemana({ onViewOrder, onViewMiDia, onViewEstaSema
       {vistaActiva === 'proxima' && <>
 
       {/* ── SECCIÓN 1: Medidor semana ──────────────────────────────────────────── */}
+      <div style={{ background:enCamino?'#16a34a':'#dc2626', borderRadius:'var(--radius-lg)', padding:'8px 16px', marginBottom:'8px', textAlign:'center' }}>
+        <span style={{ fontSize:'13px', fontWeight:'900', color:'white', letterSpacing:'0.12em', textTransform:'uppercase' }}>
+          {enCamino ? '🟢 Estás en verde' : '🔴 Estás en rojo'}
+        </span>
+      </div>
       <div style={{ borderRadius:'var(--radius-lg)', overflow:'hidden', border:`1.5px solid ${enCamino?'#bbf7d0':'#fecaca'}`, marginBottom:'16px' }}>
         <div style={{ background:enCamino?'#f0fdf4':'#fef2f2', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
           <div style={{ fontSize:'11px', fontWeight:'700', color:enCamino?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.08em' }}>Necesitas</div>

@@ -396,22 +396,24 @@ export default function MiDia({ onViewOrder, onViewPista, onViewProximaSemana, i
                 {enCaminoHoy ? '🟢 Estás en verde' : '🔴 Estás en rojo'}
               </span>
             </div>
-            <div style={{ background: enCaminoHoy ? '#f0fdf4' : '#fef2f2', border:`1.5px solid ${enCaminoHoy ? '#bbf7d0' : '#fecaca'}`, borderRadius:'var(--radius-lg)', padding:'16px 20px', marginBottom:'16px' }}>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'10px' }}>
-                <div>
-                  <div style={{ fontSize:'10px', fontWeight:'700', color: enCaminoHoy?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'2px' }}>En juego hoy</div>
-                  <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'22px', color: enCaminoHoy?'#16a34a':'#dc2626' }}>{fmtM(totalHoy)}</div>
-                </div>
-                <div>
-                  <div style={{ fontSize:'10px', fontWeight:'700', color: enCaminoHoy?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'2px' }}>Necesitas</div>
-                  <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'22px', color: enCaminoHoy?'#16a34a':'#dc2626' }}>{fmtM(valorX)}</div>
+            <div style={{ borderRadius:'var(--radius-lg)', overflow:'hidden', border:`1.5px solid ${enCaminoHoy?'#bbf7d0':'#fecaca'}`, marginBottom:'16px' }}>
+              <div style={{ background:enCaminoHoy?'#f0fdf4':'#fef2f2', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <div style={{ fontSize:'11px', fontWeight:'700', color:enCaminoHoy?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.08em' }}>Necesitas</div>
+                <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'20px', color:enCaminoHoy?'#16a34a':'#dc2626' }}>{fmtM(valorX)}</div>
+              </div>
+              <div style={{ background:enCaminoHoy?'#f0fdf4':'#fef2f2', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', borderTop:`1px solid ${enCaminoHoy?'#bbf7d0':'#fecaca'}` }}>
+                <div style={{ fontSize:'11px', fontWeight:'700', color:enCaminoHoy?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.08em' }}>En juego hoy</div>
+                <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'20px', color:enCaminoHoy?'#16a34a':'#dc2626' }}>{fmtM(totalHoy)}</div>
+              </div>
+              <div style={{ background:enCaminoHoy?'#f0fdf4':'#fef2f2', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', borderTop:`1px solid ${enCaminoHoy?'#bbf7d0':'#fecaca'}` }}>
+                <div style={{ fontSize:'11px', fontWeight:'700', color:enCaminoHoy?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.08em' }}>{enCaminoHoy?'✓ Estás en verde':'⚠ Te faltan'}</div>
+                {!enCaminoHoy && <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'20px', color:'#dc2626' }}>{fmtM(faltaHoy)}</div>}
+              </div>
+              <div style={{ background:enCaminoHoy?'#f0fdf4':'#fef2f2', padding:'10px 16px', borderTop:`1px solid ${enCaminoHoy?'#bbf7d0':'#fecaca'}` }}>
+                <div style={{ fontSize:'13px', fontWeight:'700', color:enCaminoHoy?'#16a34a':'#dc2626' }}>
+                  {enCaminoHoy?'¡Tienes suficiente en juego para hoy!':'Necesitas prospectar o recuperar órdenes hoy'}
                 </div>
               </div>
-              {enCaminoHoy ? (
-                <div style={{ fontSize:'13px', fontWeight:'700', color:'#16a34a' }}>✓ Tienes suficiente en juego para hoy — ¡estás en camino!</div>
-              ) : (
-                <div style={{ fontSize:'13px', fontWeight:'700', color:'#dc2626' }}>⚠ Te faltan {fmtM(faltaHoy)} — necesitas prospectar o recuperar órdenes hoy</div>
-              )}
             </div>
           </>
         )
