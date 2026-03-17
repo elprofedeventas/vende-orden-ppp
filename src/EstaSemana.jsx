@@ -42,7 +42,7 @@ function CardPistaSimple({ pista, onViewPista, fmtM }) {
       <div style={{ background:'#eff6ff', padding:'8px 14px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:'10px' }}>
         <span style={{ fontSize:'12px', fontWeight:'800', color:'#2563eb' }}>{sec1Label}</span>
         <div style={{ textAlign:'right', flexShrink:0 }}>
-          <span style={{ fontSize:'11px', fontWeight:'700', color:'#2563eb', background:'var(--white)', padding:'1px 8px', borderRadius:'20px', display:'block', marginBottom:'3px', opacity:0.9 }}>Pista</span>
+          <span style={{ fontSize:'11px', fontWeight:'700', color:'#2563eb', display:'block', marginBottom:'3px' }}>Pista</span>
           {pista.potencial && <div style={{ fontSize:'11px', fontWeight:'700', color:potencialColorFn(pista.potencial) }}>Potencial {pista.potencial.toLowerCase()}</div>}
           {(dias !== undefined && dias !== null) && <div style={{ fontSize:'10px', color:'#2563eb', opacity:0.8 }}>{Math.max(1,dias)} {Math.max(1,dias)===1?'día':'días'} en pista</div>}
         </div>
