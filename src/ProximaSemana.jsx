@@ -327,30 +327,25 @@ export default function ProximaSemana({ onViewOrder, onViewMiDia, onViewEstaSema
 
         return (
           <div style={{ display:'flex', flexDirection:'column', gap:'16px' }}>
-            {/* Banner */}
-            <div style={{ background: enCaminoEsta ? '#16a34a' : '#dc2626', borderRadius:'var(--radius-lg)', padding:'8px 16px', textAlign:'center' }}>
-              <span style={{ fontSize:'13px', fontWeight:'900', color:'white', letterSpacing:'0.12em', textTransform:'uppercase' }}>
-                {enCaminoEsta ? '🟢 Estás en verde' : '🔴 Estás en rojo'}
-              </span>
-            </div>
-
-            {/* Medidor */}
-            <div style={{ background: enCaminoEsta ? '#f0fdf4' : '#fef2f2', border:`1.5px solid ${enCaminoEsta ? '#bbf7d0' : '#fecaca'}`, borderRadius:'var(--radius-lg)', padding:'16px 20px' }}>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'10px' }}>
-                <div>
-                  <div style={{ fontSize:'10px', fontWeight:'700', color:enCaminoEsta?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'2px' }}>En juego esta semana</div>
-                  <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'22px', color:enCaminoEsta?'#16a34a':'#dc2626' }}>{fmtM(totalEstaSemana)}</div>
-                </div>
-                <div>
-                  <div style={{ fontSize:'10px', fontWeight:'700', color:enCaminoEsta?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'2px' }}>Necesitas</div>
-                  <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'22px', color:enCaminoEsta?'#16a34a':'#dc2626' }}>{fmtM(valorXSemanaEsta)}</div>
+            {/* Medidor esta semana */}
+            <div style={{ borderRadius:'var(--radius-lg)', overflow:'hidden', border:`1.5px solid ${enCaminoEsta?'#bbf7d0':'#fecaca'}` }}>
+              <div style={{ background:enCaminoEsta?'#f0fdf4':'#fef2f2', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <div style={{ fontSize:'11px', fontWeight:'700', color:enCaminoEsta?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.08em' }}>Necesitas</div>
+                <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'20px', color:enCaminoEsta?'#16a34a':'#dc2626' }}>{fmtM(valorXSemanaEsta)}</div>
+              </div>
+              <div style={{ background:enCaminoEsta?'#f0fdf4':'#fef2f2', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', borderTop:`1px solid ${enCaminoEsta?'#bbf7d0':'#fecaca'}` }}>
+                <div style={{ fontSize:'11px', fontWeight:'700', color:enCaminoEsta?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.08em' }}>En juego esta semana</div>
+                <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'20px', color:enCaminoEsta?'#16a34a':'#dc2626' }}>{fmtM(totalEstaSemana)}</div>
+              </div>
+              <div style={{ background:enCaminoEsta?'#f0fdf4':'#fef2f2', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', borderTop:`1px solid ${enCaminoEsta?'#bbf7d0':'#fecaca'}` }}>
+                <div style={{ fontSize:'11px', fontWeight:'700', color:enCaminoEsta?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.08em' }}>{enCaminoEsta?'✓ Estás en verde':'⚠ Te faltan'}</div>
+                {!enCaminoEsta && <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'20px', color:'#dc2626' }}>{fmtM(faltanteEsta)}</div>}
+              </div>
+              <div style={{ background:enCaminoEsta?'#f0fdf4':'#fef2f2', padding:'10px 16px', borderTop:`1px solid ${enCaminoEsta?'#bbf7d0':'#fecaca'}` }}>
+                <div style={{ fontSize:'13px', fontWeight:'700', color:enCaminoEsta?'#16a34a':'#dc2626' }}>
+                  {enCaminoEsta?'¡Tienes suficiente en juego para esta semana!':'Necesitas prospectar o recuperar órdenes esta semana'}
                 </div>
               </div>
-              {enCaminoEsta ? (
-                <div style={{ fontSize:'13px', fontWeight:'700', color:'#16a34a' }}>✓ Tienes suficiente para esta semana — ¡estás en camino!</div>
-              ) : (
-                <div style={{ fontSize:'13px', fontWeight:'700', color:'#dc2626' }}>⚠ Te faltan {fmtM(faltanteEsta)} — necesitas prospectar o recuperar órdenes</div>
-              )}
             </div>
 
             {/* Info semana */}
@@ -403,27 +398,24 @@ export default function ProximaSemana({ onViewOrder, onViewMiDia, onViewEstaSema
       {vistaActiva === 'proxima' && <>
 
       {/* ── SECCIÓN 1: Medidor semana ──────────────────────────────────────────── */}
-      <div style={{ background: enCamino ? '#16a34a' : '#dc2626', borderRadius:'var(--radius-lg)', padding:'8px 16px', marginBottom:'8px', textAlign:'center' }}>
-        <span style={{ fontSize:'13px', fontWeight:'900', color:'white', letterSpacing:'0.12em', textTransform:'uppercase' }}>
-          {enCamino ? '🟢 Estás en verde' : '🔴 Estás en rojo'}
-        </span>
-      </div>
-      <div style={{ background: enCamino ? '#f0fdf4' : '#fef2f2', border:`1.5px solid ${enCamino ? '#bbf7d0' : '#fecaca'}`, borderRadius:'var(--radius-lg)', padding:'16px 20px', marginBottom:'16px' }}>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'10px' }}>
-          <div>
-            <div style={{ fontSize:'10px', fontWeight:'700', color: enCamino?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'2px' }}>En juego próxima semana</div>
-            <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'22px', color: enCamino?'#16a34a':'#dc2626' }}>{fmtM(totalProximaSemana)}</div>
-          </div>
-          <div>
-            <div style={{ fontSize:'10px', fontWeight:'700', color: enCamino?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'2px' }}>Necesitas</div>
-            <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'22px', color: enCamino?'#16a34a':'#dc2626' }}>{fmtM(valorXSemana)}</div>
+      <div style={{ borderRadius:'var(--radius-lg)', overflow:'hidden', border:`1.5px solid ${enCamino?'#bbf7d0':'#fecaca'}`, marginBottom:'16px' }}>
+        <div style={{ background:enCamino?'#f0fdf4':'#fef2f2', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <div style={{ fontSize:'11px', fontWeight:'700', color:enCamino?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.08em' }}>Necesitas</div>
+          <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'20px', color:enCamino?'#16a34a':'#dc2626' }}>{fmtM(valorXSemana)}</div>
+        </div>
+        <div style={{ background:enCamino?'#f0fdf4':'#fef2f2', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', borderTop:`1px solid ${enCamino?'#bbf7d0':'#fecaca'}` }}>
+          <div style={{ fontSize:'11px', fontWeight:'700', color:enCamino?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.08em' }}>En juego próxima semana</div>
+          <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'20px', color:enCamino?'#16a34a':'#dc2626' }}>{fmtM(totalProximaSemana)}</div>
+        </div>
+        <div style={{ background:enCamino?'#f0fdf4':'#fef2f2', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', borderTop:`1px solid ${enCamino?'#bbf7d0':'#fecaca'}` }}>
+          <div style={{ fontSize:'11px', fontWeight:'700', color:enCamino?'#16a34a':'#dc2626', textTransform:'uppercase', letterSpacing:'0.08em' }}>{enCamino?'✓ Estás en verde':'⚠ Te faltan'}</div>
+          {!enCamino && <div style={{ fontFamily:'var(--font-display)', fontWeight:'800', fontSize:'20px', color:'#dc2626' }}>{fmtM(faltante)}</div>}
+        </div>
+        <div style={{ background:enCamino?'#f0fdf4':'#fef2f2', padding:'10px 16px', borderTop:`1px solid ${enCamino?'#bbf7d0':'#fecaca'}` }}>
+          <div style={{ fontSize:'13px', fontWeight:'700', color:enCamino?'#16a34a':'#dc2626' }}>
+            {enCamino?'¡Tienes suficiente en juego para la próxima semana!':'Necesitas prospectar o recuperar órdenes esta semana'}
           </div>
         </div>
-        {enCamino ? (
-          <div style={{ fontSize:'13px', fontWeight:'700', color:'#16a34a' }}>✓ Tienes suficiente para la próxima semana — ¡estás en camino!</div>
-        ) : (
-          <div style={{ fontSize:'13px', fontWeight:'700', color:'#dc2626' }}>⚠ Te faltan {fmtM(faltante)} — necesitas prospectar o recuperar órdenes esta semana</div>
-        )}
       </div>
 
       {/* ── SECCIÓN 2: Órdenes próxima semana ─────────────────────────────────── */}

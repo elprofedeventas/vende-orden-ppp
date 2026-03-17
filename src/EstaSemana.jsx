@@ -240,31 +240,23 @@ export function EstaSemana({ onViewOrder, onViewMiDia, onViewProximaSemana, onVi
       </div>
 
       {/* Banner */}
-      <div style={{background:enCaminoEsta?'#16a34a':'#dc2626',borderRadius:'var(--radius-lg)',padding:'8px 16px',marginBottom:'8px',textAlign:'center'}}>
-        <span style={{fontSize:'13px',fontWeight:'900',color:'white',letterSpacing:'0.12em',textTransform:'uppercase'}}>
-          {enCaminoEsta ? '🟢 Estás en verde' : '🔴 Estás en rojo'}
-        </span>
-      </div>
-
-      {/* Medidor */}
-      <div style={{background:enCaminoEsta?'#f0fdf4':'#fef2f2',border:`1.5px solid ${enCaminoEsta?'#bbf7d0':'#fecaca'}`,borderRadius:'var(--radius-lg)',padding:'16px 20px',marginBottom:'16px'}}>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',marginBottom:'10px'}}>
-          <div>
-            <div style={{fontSize:'10px',fontWeight:'700',color:enCaminoEsta?'#16a34a':'#dc2626',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:'2px'}}>En juego esta semana</div>
-            <div style={{fontFamily:'var(--font-display)',fontWeight:'800',fontSize:'22px',color:enCaminoEsta?'#16a34a':'#dc2626'}}>{fmtM(totalEstaSemana)}</div>
-          </div>
-          <div>
-            <div style={{fontSize:'10px',fontWeight:'700',color:enCaminoEsta?'#16a34a':'#dc2626',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:'2px'}}>Necesitas</div>
-            <div style={{fontFamily:'var(--font-display)',fontWeight:'800',fontSize:'22px',color:enCaminoEsta?'#16a34a':'#dc2626'}}>{fmtM(valorXSemanaEsta)}</div>
-          </div>
+      <div style={{borderRadius:'var(--radius-lg)',overflow:'hidden',border:`1.5px solid ${enCaminoEsta?'#bbf7d0':'#fecaca'}`,marginBottom:'16px'}}>
+        <div style={{background:enCaminoEsta?'#f0fdf4':'#fef2f2',padding:'10px 16px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div style={{fontSize:'11px',fontWeight:'700',color:enCaminoEsta?'#16a34a':'#dc2626',textTransform:'uppercase',letterSpacing:'0.08em'}}>Necesitas</div>
+          <div style={{fontFamily:'var(--font-display)',fontWeight:'800',fontSize:'20px',color:enCaminoEsta?'#16a34a':'#dc2626'}}>{fmtM(valorXSemanaEsta)}</div>
         </div>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:'6px'}}>
-          {enCaminoEsta ? (
-            <div style={{fontSize:'13px',fontWeight:'700',color:'#16a34a'}}>✓ Tienes suficiente para esta semana — ¡estás en camino!</div>
-          ) : (
-            <div style={{fontSize:'13px',fontWeight:'700',color:'#dc2626'}}>⚠ Te faltan {fmtM(faltanteEsta)} — necesitas prospectar o recuperar órdenes esta semana</div>
-          )}
-
+        <div style={{background:enCaminoEsta?'#f0fdf4':'#fef2f2',padding:'10px 16px',display:'flex',justifyContent:'space-between',alignItems:'center',borderTop:`1px solid ${enCaminoEsta?'#bbf7d0':'#fecaca'}`}}>
+          <div style={{fontSize:'11px',fontWeight:'700',color:enCaminoEsta?'#16a34a':'#dc2626',textTransform:'uppercase',letterSpacing:'0.08em'}}>En juego esta semana</div>
+          <div style={{fontFamily:'var(--font-display)',fontWeight:'800',fontSize:'20px',color:enCaminoEsta?'#16a34a':'#dc2626'}}>{fmtM(totalEstaSemana)}</div>
+        </div>
+        <div style={{background:enCaminoEsta?'#f0fdf4':'#fef2f2',padding:'10px 16px',display:'flex',justifyContent:'space-between',alignItems:'center',borderTop:`1px solid ${enCaminoEsta?'#bbf7d0':'#fecaca'}`}}>
+          <div style={{fontSize:'11px',fontWeight:'700',color:enCaminoEsta?'#16a34a':'#dc2626',textTransform:'uppercase',letterSpacing:'0.08em'}}>{enCaminoEsta?'✓ Estás en verde':'⚠ Te faltan'}</div>
+          {!enCaminoEsta && <div style={{fontFamily:'var(--font-display)',fontWeight:'800',fontSize:'20px',color:'#dc2626'}}>{fmtM(faltanteEsta)}</div>}
+        </div>
+        <div style={{background:enCaminoEsta?'#f0fdf4':'#fef2f2',padding:'10px 16px',borderTop:`1px solid ${enCaminoEsta?'#bbf7d0':'#fecaca'}`}}>
+          <div style={{fontSize:'13px',fontWeight:'700',color:enCaminoEsta?'#16a34a':'#dc2626'}}>
+            {enCaminoEsta?'¡Tienes suficiente en juego para esta semana!':'Necesitas prospectar o recuperar órdenes esta semana'}
+          </div>
         </div>
       </div>
 
