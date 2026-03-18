@@ -100,8 +100,52 @@ export function ConversorRapido() {
 // WHATSAPP RÁPIDO
 // ─────────────────────────────────────────────────────────────────────────────
 export function WhatsAppRapido({ onClose }) {
-  const [numero, setNumero] = useState('')
-  const [mensaje, setMensaje] = useState('')
+  const [numero, setNumero]       = useState('')
+  const [mensaje, setMensaje]     = useState('')
+  const [busqueda, setBusqueda]   = useState('')
+  const [contactos, setContactos] = useState([])
+  const [resultados, setResultados] = useState([])
+  const [mensajesWA, setMensajesWA] = useState([])
+  const [nombreSel, setNombreSel] = useState('')
+
+  // Cargar contactos y mensajes al montar
+  useEffect(() => {
+    fetch(API_BASE)
+      .then(r => r.json())
+      .then(d => { if (d.success) setContactos(d.data) })
+      .catch(() => {})
+    fetch(`${API_BASE}?action=getMensajesWA`)
+      .then(r => r.json())
+      .then(d => { if (d.success) setMensajesWA(d.data) })
+      .catch(() => {})
+  }, [])
+
+  // Filtrar contactos al escribir
+  useEffect(() => {
+    const q = busqueda.trim()
+    if (!q) { setResultados([]); return }
+    const qn = norm(q)
+    setResultados(
+      contactos
+        .filter(c => norm(c.nombre).includes(qn) || norm(c.negocio || '').includes(qn))
+        .slice(0, 6)
+    )
+  }, [busqueda, contactos])
+
+  const seleccionar = (c) => {
+    const tel = (c.telefono || '').toString().replace(/^'+/, '').replace(/\D/g, '').replace(/^593/, '0')
+    setNumero(tel)
+    setNombreSel(c.nombre)
+    setBusqueda('')
+    setResultados([])
+  }
+
+  const limpiarTelefono = (v) => {
+    let t = v.replace(/\s+/g, '').replace(/-/g, '')
+    if (t.startsWith('+593')) t = '0' + t.slice(4)
+    else if (t.startsWith('593')) t = '0' + t.slice(3)
+    return t
+  }
 
   const abrir = () => {
     if (!numero.trim()) return
@@ -115,12 +159,63 @@ export function WhatsAppRapido({ onClose }) {
 
   return (
     <div style={{ padding:'14px' }}>
-      <input value={numero} onChange={e => setNumero(e.target.value)} onKeyDown={handleKey}
-        placeholder="Número de celular *" type="tel" autoFocus
+
+      {/* Búsqueda de contacto */}
+      <div style={{ position:'relative', marginBottom:'8px' }}>
+        <input value={busqueda} onChange={e => setBusqueda(e.target.value)}
+          placeholder="Buscar por nombre o empresa..."
+          style={{ ...inputStyle, fontSize:'13px', width:'100%', boxSizing:'border-box', paddingRight: busqueda ? '32px' : '12px' }} />
+        {busqueda && (
+          <button onClick={() => { setBusqueda(''); setResultados([]) }}
+            style={{ position:'absolute', right:'8px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'var(--muted)', fontSize:'14px', padding:'2px' }}>✕</button>
+        )}
+        {/* Dropdown resultados */}
+        {resultados.length > 0 && (
+          <div style={{ position:'absolute', top:'calc(100% + 4px)', left:0, right:0, background:'var(--white)', border:'1.5px solid var(--border)', borderRadius:'var(--radius)', boxShadow:'var(--shadow-lg)', zIndex:100, maxHeight:'200px', overflowY:'auto' }}>
+            {resultados.map((c, i) => (
+              <div key={i} onClick={() => seleccionar(c)}
+                style={{ padding:'8px 12px', cursor:'pointer', borderBottom: i < resultados.length-1 ? '1px solid var(--cream)' : 'none', transition:'background 0.1s' }}
+                onMouseEnter={e => e.currentTarget.style.background='var(--cream)'}
+                onMouseLeave={e => e.currentTarget.style.background='transparent'}>
+                <div style={{ fontSize:'13px', fontWeight:'600', color:'var(--ink)' }}>{c.nombre}</div>
+                {c.negocio && <div style={{ fontSize:'11px', color:'var(--muted)' }}>{c.negocio}</div>}
+                {c.telefono && <div style={{ fontSize:'11px', color:'#16a34a' }}>{c.telefono.toString().replace(/^'+/,'')}</div>}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Nombre seleccionado */}
+      {nombreSel && (
+        <div style={{ fontSize:'11px', color:'var(--brand)', fontWeight:'600', marginBottom:'6px', display:'flex', alignItems:'center', gap:'6px' }}>
+          <span>✓ {nombreSel}</span>
+          <button onClick={() => { setNombreSel(''); setNumero('') }}
+            style={{ background:'none', border:'none', cursor:'pointer', color:'var(--muted)', fontSize:'12px', padding:0 }}>✕</button>
+        </div>
+      )}
+
+      {/* Número */}
+      <input value={numero} onChange={e => setNumero(limpiarTelefono(e.target.value))} onKeyDown={handleKey}
+        placeholder="Número de celular *" type="tel"
         style={{ ...inputStyle, fontSize:'14px', marginBottom:'8px', width:'100%', boxSizing:'border-box' }} />
+
+      {/* Selector de mensajes predefinidos */}
+      {mensajesWA.length > 0 && (
+        <select onChange={e => { if (e.target.value) setMensaje(e.target.value) }} defaultValue=""
+          style={{ ...inputStyle, fontSize:'13px', marginBottom:'8px', width:'100%', boxSizing:'border-box', cursor:'pointer' }}>
+          <option value="">— Mensaje predefinido —</option>
+          {mensajesWA.map((m, i) => (
+            <option key={i} value={m.mensaje}>{m.etiqueta}</option>
+          ))}
+        </select>
+      )}
+
+      {/* Mensaje libre */}
       <textarea value={mensaje} onChange={e => setMensaje(e.target.value)}
         placeholder="Mensaje (opcional)..."
         style={{ ...inputStyle, fontSize:'13px', resize:'none', minHeight:'64px', lineHeight:'1.5', marginBottom:'10px', width:'100%', boxSizing:'border-box' }} />
+
       <button onClick={abrir} disabled={!numero.trim()}
         style={{ width:'100%', padding:'10px', background: !numero.trim() ? 'var(--muted)' : '#16a34a', color:'white', border:'none', borderRadius:'var(--radius)', fontSize:'13px', fontWeight:'700', cursor: !numero.trim() ? 'not-allowed' : 'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:'6px' }}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.656 1.438 5.168L2 22l4.984-1.393A9.953 9.953 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z" fill="none" stroke="white" strokeWidth="1.5"/></svg>
@@ -310,7 +405,7 @@ export function NotasRapidas({ valor, onChange }) {
         </button>
         <button onClick={guardarSheets} disabled={saving || !valor.trim()}
           style={{ flex:2, padding:'8px', background: saved ? '#16a34a' : saving ? 'var(--muted)' : '#d97706', border:'none', borderRadius:'var(--radius)', fontSize:'12px', fontWeight:'700', cursor: saving || !valor.trim() ? 'not-allowed' : 'pointer', color:'white', display:'flex', alignItems:'center', justifyContent:'center', gap:'6px' }}>
-          {saved ? '✓ Guardado' : saving ? '⏳ Guardando...' : '☁ Guardar'}
+          {saved ? '✓ Guardado' : saving ? '⏳ Guardando...' : '☁ Guardar en Sheets'}
         </button>
       </div>
     </div>
