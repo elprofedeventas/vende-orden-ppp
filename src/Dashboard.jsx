@@ -290,7 +290,7 @@ export default function Dashboard() {
               </div>
               <div style={{ fontSize: '13px', fontWeight: '700', color: rojo, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Días sin prospectar</div>
             </div>
-            <div style={{ fontFamily: 'var(--font-display)', fontWeight: '800', fontSize: '20px', color: rojo }}>{Math.max(1, data?.diasSinProspectar ?? 1)}</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontWeight: '800', fontSize: '20px', color: rojo }}>{data?.diasSinProspectar ?? 0}</div>
           </div>
 
           {/* Pistas — expandible */}
