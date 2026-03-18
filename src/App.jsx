@@ -518,7 +518,7 @@ export default function App() {
 
 
       {/* ── FAB: Relámpago + herramientas ─────────────────────────────────── */}
-      {!['form','edit','editPista'].includes(view) && (
+      {!['form','edit'].includes(view) && (
         <div style={{ position:'fixed', bottom:'24px', right:'20px', zIndex:600, display:'flex', flexDirection:'column', alignItems:'flex-end', gap:'10px' }}>
 
           {/* Overlay para cerrar */}
