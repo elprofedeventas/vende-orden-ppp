@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { API_BASE, Icon, icons, getNowGuayaquil } from './shared.jsx'
+import { API_BASE } from './shared.jsx'
 
 const fmtM = (n) => '$' + Math.abs(parseFloat(n)||0).toLocaleString('es-EC', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 
