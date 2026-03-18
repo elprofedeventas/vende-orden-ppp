@@ -93,7 +93,7 @@ export function getTodayLabel() {
 export function Field({ label, icon, required, children, hint }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-      <label style={{ fontFamily: 'var(--font-display)', fontSize: '11px', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <label style={{ fontFamily: 'var(--font-display)', fontSize: '11px', fontWeight: '500', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
         <span style={{ color: 'var(--accent)', opacity: 0.7 }}><Icon d={icons[icon]} size={14} /></span>
         {label}{required && <span style={{ color: 'var(--accent)' }}>*</span>}
       </label>
@@ -172,11 +172,11 @@ export function DatePicker({ value, onChange, placeholder = 'dd/mm/aaaa' }) {
           onMouseDown={e => e.stopPropagation()}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'10px' }}>
             <button onClick={prevMonth} style={{ background:'none', border:'none', cursor:'pointer', padding:'4px 8px', borderRadius:'var(--radius)', color:'var(--muted)', fontSize:'16px', lineHeight:1 }}>&#8249;</button>
-            <span style={{ fontFamily:'var(--font-display)', fontWeight:'700', fontSize:'13px' }}>{MESES_NOMBRES[viewMonth]} {viewYear}</span>
+            <span style={{ fontFamily:'var(--font-display)', fontWeight:'500', fontSize:'13px' }}>{MESES_NOMBRES[viewMonth]} {viewYear}</span>
             <button onClick={nextMonth} style={{ background:'none', border:'none', cursor:'pointer', padding:'4px 8px', borderRadius:'var(--radius)', color:'var(--muted)', fontSize:'16px', lineHeight:1 }}>&#8250;</button>
           </div>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:'2px', marginBottom:'4px' }}>
-            {DIAS_CORTOS.map(d => <div key={d} style={{ textAlign:'center', fontSize:'10px', fontWeight:'700', color:'var(--muted)', padding:'2px 0' }}>{d}</div>)}
+            {DIAS_CORTOS.map(d => <div key={d} style={{ textAlign:'center', fontSize:'10px', fontWeight:'500', color:'var(--muted)', padding:'2px 0' }}>{d}</div>)}
           </div>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:'2px' }}>
             {cells.map((d, i) => d === null
