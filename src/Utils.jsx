@@ -313,6 +313,109 @@ export function Calculadora() {
 // ─────────────────────────────────────────────────────────────────────────────
 // CALENDARIO FLOTANTE
 // ─────────────────────────────────────────────────────────────────────────────
+// ── Convierte "HH:mm" a minutos desde medianoche ─────────────────────────────
+function hhmm2min(s) {
+  if (!s) return null
+  const [hh, mm] = s.split(':').map(Number)
+  if (isNaN(hh) || isNaN(mm)) return null
+  return hh * 60 + mm
+}
+
+function min2hhmm(m) {
+  const hh = Math.floor(m / 60)
+  const mm  = m % 60
+  return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`
+}
+
+function PanelDia({ acts, horario, duraciones = {} }) {
+  const getDuracion = (accion) => {
+    if (!accion) return duraciones.default || 30
+    const a = accion.toLowerCase()
+    if (a.includes('reun'))   return duraciones.reunion  || 90
+    if (a.includes('visit'))  return duraciones.visita   || 60
+    if (a.includes('llam'))   return duraciones.llamada  || 30
+    if (a.includes('mens') || a.includes('whats')) return duraciones.mensaje || 15
+    return duraciones.default || 30
+  }
+  const inicio  = hhmm2min(horario.inicio) ?? 480   // 08:00
+  const fin     = hhmm2min(horario.fin)    ?? 1080  // 18:00
+  const minBloq = parseInt(horario.minBloque) || 60
+
+  // Separar actividades con hora y sin hora
+  const conHora  = acts.filter(a => a.hora && hhmm2min(a.hora) !== null)
+    .sort((a,b) => (hhmm2min(a.hora)||0) - (hhmm2min(b.hora)||0))
+  const sinHora  = acts.filter(a => !a.hora || hhmm2min(a.hora) === null)
+
+  // Construir línea de tiempo mezclando actividades y bloques libres
+  const timeline = []
+  let cursor = inicio
+
+  conHora.forEach(a => {
+    const tAct = hhmm2min(a.hora)
+    if (tAct > cursor && (tAct - cursor) >= minBloq) {
+      timeline.push({ tipo: 'libre', desde: min2hhmm(cursor), hasta: min2hhmm(tAct) })
+    }
+    timeline.push({ tipo: 'actividad', data: a })
+    cursor = tAct + getDuracion(a.accion)
+  })
+
+  // Bloque libre al final del día
+  if (fin > cursor && (fin - cursor) >= minBloq) {
+    timeline.push({ tipo: 'libre', desde: min2hhmm(cursor), hasta: min2hhmm(fin) })
+  }
+
+  // Si no hay actividades con hora, mostrar todo el día libre
+  if (conHora.length === 0 && acts.length === 0) {
+    timeline.push({ tipo: 'libre', desde: horario.inicio, hasta: horario.fin })
+  }
+
+  const CardActividad = ({ a }) => (
+    <div style={{ borderRadius:'var(--radius)', overflow:'hidden', border:`1.5px solid ${a.tipo==='pista' ? '#bfdbfe' : 'var(--border)'}` }}>
+      <div style={{ background: a.tipo==='pista' ? '#eff6ff' : '#f8fafc', padding:'8px 12px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <span style={{ fontSize:'11px', fontWeight:'600', color: a.tipo==='pista' ? '#2563eb' : 'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em' }}>
+          {a.tipo === 'pista' ? 'Pista' : 'Orden'}
+        </span>
+        {a.hora && <span style={{ fontSize:'12px', fontWeight:'600', color: a.tipo==='pista' ? '#2563eb' : 'var(--brand)' }}>🕐 {a.hora}</span>}
+      </div>
+      <div style={{ padding:'8px 12px', background:'var(--white)' }}>
+        <div style={{ fontFamily:'var(--font-display)', fontWeight:'600', fontSize:'14px' }}>{a.nombre}</div>
+        {a.negocio && <div style={{ fontSize:'12px', color:'var(--muted)', marginTop:'1px' }}>{a.negocio}</div>}
+        {a.accion  && <div style={{ fontSize:'12px', color:'var(--brand)', fontWeight:'600', marginTop:'4px' }}>{a.accion}</div>}
+      </div>
+    </div>
+  )
+
+  return (
+    <div style={{ padding:'12px 16px', display:'flex', flexDirection:'column', gap:'8px' }}>
+      {timeline.length === 0 && acts.length === 0 && (
+        <div style={{ textAlign:'center', padding:'24px', color:'var(--muted)', fontSize:'14px' }}>
+          <div style={{ fontSize:'28px', marginBottom:'8px' }}>📅</div>
+          No hay actividades para este día
+        </div>
+      )}
+      {timeline.map((item, i) =>
+        item.tipo === 'libre' ? (
+          <div key={i} style={{ borderRadius:'var(--radius)', border:'1.5px solid #bbf7d0', background:'#f0fdf4', padding:'10px 14px', display:'flex', alignItems:'center', gap:'10px' }}>
+            <div style={{ width:'8px', height:'8px', borderRadius:'50%', background:'#16a34a', flexShrink:0 }} />
+            <div>
+              <div style={{ fontSize:'13px', fontWeight:'600', color:'#16a34a' }}>{item.desde} – {item.hasta}</div>
+              <div style={{ fontSize:'11px', color:'#16a34a', opacity:0.8 }}>Disponible</div>
+            </div>
+          </div>
+        ) : (
+          <CardActividad key={i} a={item.data} />
+        )
+      )}
+      {sinHora.length > 0 && (
+        <>
+          <div style={{ fontSize:'11px', fontWeight:'600', color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em', marginTop:'4px' }}>Sin hora asignada</div>
+          {sinHora.map((a, i) => <CardActividad key={`sh-${i}`} a={a} />)}
+        </>
+      )}
+    </div>
+  )
+}
+
 export function CalendarioFlotante() {
   const hoy  = getNowGuayaquil()
   const [mes,  setMes]  = useState(hoy.getMonth())
@@ -320,6 +423,8 @@ export function CalendarioFlotante() {
   const [sel,  setSel]  = useState(null)
   const [actividades, setActividades] = useState({})
   const [umbrales, setUmbrales] = useState({ verde:1, amarillo:3, rojo:4 })
+  const [horario, setHorario] = useState({ inicio:'08:00', fin:'18:00', minBloque:60 })
+  const [duraciones, setDuraciones] = useState({ mensaje:15, llamada:30, visita:60, reunion:90, default:30 })
   const [loadingActs, setLoadingActs] = useState(false)
   const [panelAbierto, setPanelAbierto] = useState(false)
 
@@ -339,6 +444,8 @@ export function CalendarioFlotante() {
         if (d.success) {
           setActividades(d.data || {})
           if (d.umbrales) setUmbrales(d.umbrales)
+          if (d.horario)    setHorario(d.horario)
+          if (d.duraciones) setDuraciones(d.duraciones)
         }
       })
       .catch(() => {})
@@ -437,28 +544,7 @@ export function CalendarioFlotante() {
               <button onClick={() => setPanelAbierto(false)}
                 style={{ background:'var(--cream)', border:'none', borderRadius:'50%', width:'28px', height:'28px', cursor:'pointer', fontSize:'14px', color:'var(--muted)' }}>✕</button>
             </div>
-            <div style={{ padding:'12px 16px', display:'flex', flexDirection:'column', gap:'8px' }}>
-              {selActs.length === 0 ? (
-                <div style={{ textAlign:'center', padding:'24px', color:'var(--muted)', fontSize:'14px' }}>
-                  <div style={{ fontSize:'28px', marginBottom:'8px' }}>📅</div>
-                  No hay actividades para este día
-                </div>
-              ) : selActs.map((a, i) => (
-                <div key={i} style={{ borderRadius:'var(--radius)', overflow:'hidden', border:`1.5px solid ${a.tipo==='pista' ? '#bfdbfe' : 'var(--border)'}` }}>
-                  <div style={{ background: a.tipo==='pista' ? '#eff6ff' : '#f8fafc', padding:'8px 12px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                    <span style={{ fontSize:'11px', fontWeight:'600', color: a.tipo==='pista' ? '#2563eb' : 'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em' }}>
-                      {a.tipo === 'pista' ? 'Pista' : 'Orden'}
-                    </span>
-                    {a.hora && <span style={{ fontSize:'12px', fontWeight:'600', color: a.tipo==='pista' ? '#2563eb' : 'var(--brand)' }}>🕐 {a.hora}</span>}
-                  </div>
-                  <div style={{ padding:'8px 12px', background:'var(--white)' }}>
-                    <div style={{ fontFamily:'var(--font-display)', fontWeight:'600', fontSize:'14px' }}>{a.nombre}</div>
-                    {a.negocio && <div style={{ fontSize:'12px', color:'var(--muted)', marginTop:'1px' }}>{a.negocio}</div>}
-                    {a.accion  && <div style={{ fontSize:'12px', color:'var(--brand)', fontWeight:'600', marginTop:'4px' }}>{a.accion}</div>}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <PanelDia acts={selActs} horario={horario} duraciones={duraciones} />
           </div>
         </>
       )}
