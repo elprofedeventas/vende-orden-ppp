@@ -290,7 +290,7 @@ export default function Dashboard() {
               </div>
               <div style={{ fontSize: '13px', fontWeight: '700', color: rojo, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Días sin prospectar</div>
             </div>
-            <div style={{ fontFamily: 'var(--font-display)', fontWeight: '800', fontSize: '20px', color: rojo }}>{data?.diasSinProspectar ?? 0}</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontWeight: '800', fontSize: '20px', color: rojo }}>{Math.max(1, data?.diasSinProspectar ?? 1)}</div>
           </div>
 
           {/* Pistas — expandible */}
@@ -309,7 +309,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ fontFamily: 'var(--font-display)', fontWeight: '800', fontSize: '20px', color: '#0ea5e9' }}>{pistas} {pistas === 1 ? 'cliente' : 'clientes'}</div>
+                    <div style={{ fontFamily: 'var(--font-display)', fontWeight: '800', fontSize: '20px', color: '#0ea5e9' }}>{pistas}</div>
                     <div style={{ color: 'var(--muted)', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
                       <Icon d="M6 9l6 6 6-9" size={16} />
                     </div>
