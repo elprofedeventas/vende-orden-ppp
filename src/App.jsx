@@ -60,7 +60,10 @@ export default function App() {
     try {
       const res = await fetch(API_BASE)
       const data = await res.json()
-      if (data.success) setClients(data.data)
+      if (data.success) setClients(data.data.filter(c => {
+        const p = (c.pista || '').toString().trim().toUpperCase()
+        return p !== 'SÍ' && p !== 'SI'
+      }))
       else showToast('Error al cargar clientes', 'error')
     } catch { showToast('Error de conexión', 'error') }
     finally { setLoadingList(false) }
