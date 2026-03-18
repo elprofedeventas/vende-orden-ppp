@@ -59,10 +59,7 @@ export default function App() {
     try {
       const res = await fetch(API_BASE)
       const data = await res.json()
-      if (data.success) setClients(data.data.filter(c => {
-        const p = (c.pista || '').toString().trim().toUpperCase()
-        return p !== 'SÍ' && p !== 'SI'
-      }))
+      if (data.success) setClients(data.data)
       else showToast('Error al cargar clientes', 'error')
     } catch { showToast('Error de conexión', 'error') }
     finally { setLoadingList(false) }
@@ -73,11 +70,11 @@ export default function App() {
   // ── Cierre automático del día ──────────────────────────────────────────────
   useEffect(() => {
     let timerId = null
+    let ejecutando = false  // guard en memoria contra doble disparo
     const programarCierre = async () => {
       try {
         const ahora = getNowGuayaquil()
         const fechaHoy = `${String(ahora.getDate()).padStart(2,'0')}/${String(ahora.getMonth()+1).padStart(2,'0')}/${ahora.getFullYear()}`
-        // Si ya se registró hoy, no hacer nada
         if (localStorage.getItem('cierreDia') === fechaHoy) return
         const res  = await fetch(`${API_BASE}?action=getMiDia`)
         const json = await res.json()
@@ -86,8 +83,11 @@ export default function App() {
         const [hh, mm] = horaCierre.split(':').map(Number)
         const cierre = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), hh, mm, 0)
         const ms = cierre.getTime() - ahora.getTime()
-        if (ms <= 0) return // ya pasó hoy
+        if (ms <= 0) return
         timerId = setTimeout(async () => {
+          if (ejecutando) return  // ya hay otro proceso registrando
+          if (localStorage.getItem('cierreDia') === fechaHoy) return  // doble check
+          ejecutando = true
           try {
             const r2 = await fetch(`${API_BASE}?action=getMiDia`)
             const j2 = await r2.json()
@@ -98,7 +98,7 @@ export default function App() {
             const diferencia = tV - vX
             await fetch(`${API_BASE}?action=registrarCierreDia&fecha=${encodeURIComponent(fechaHoy)}&estado=${estado}&enJuego=${tV}&necesitaba=${vX}&diferencia=${diferencia}`)
             localStorage.setItem('cierreDia', fechaHoy)
-          } catch {}
+          } catch {} finally { ejecutando = false }
         }, ms)
       } catch {}
     }
