@@ -12,6 +12,7 @@ import { EstaSemana, EstaSemanaVencidas } from './EstaSemana.jsx'
 import ProximaSemana from './ProximaSemana.jsx'
 import Laboratorio from './Laboratorio.jsx'
 import HistorialDias from './HistorialDias.jsx'
+import Notas from './Notas.jsx'
 import { CapturaRapida, ConversorRapido, WhatsAppRapido, Calculadora, CalendarioFlotante, NotasRapidas, PistaFuenteSelect, PistaAccionSelect } from './Utils.jsx'
 import Alertas from './Alertas.jsx'
 import AlertaBanner from './AlertaBanner.jsx'
@@ -70,11 +71,11 @@ export default function App() {
   // ── Cierre automático del día ──────────────────────────────────────────────
   useEffect(() => {
     let timerId = null
-    let ejecutando = false  // guard en memoria contra doble disparo
     const programarCierre = async () => {
       try {
         const ahora = getNowGuayaquil()
         const fechaHoy = `${String(ahora.getDate()).padStart(2,'0')}/${String(ahora.getMonth()+1).padStart(2,'0')}/${ahora.getFullYear()}`
+        // Si ya se registró hoy, no hacer nada
         if (localStorage.getItem('cierreDia') === fechaHoy) return
         const res  = await fetch(`${API_BASE}?action=getMiDia`)
         const json = await res.json()
@@ -83,11 +84,8 @@ export default function App() {
         const [hh, mm] = horaCierre.split(':').map(Number)
         const cierre = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), hh, mm, 0)
         const ms = cierre.getTime() - ahora.getTime()
-        if (ms <= 0) return
+        if (ms <= 0) return // ya pasó hoy
         timerId = setTimeout(async () => {
-          if (ejecutando) return  // ya hay otro proceso registrando
-          if (localStorage.getItem('cierreDia') === fechaHoy) return  // doble check
-          ejecutando = true
           try {
             const r2 = await fetch(`${API_BASE}?action=getMiDia`)
             const j2 = await r2.json()
@@ -98,7 +96,7 @@ export default function App() {
             const diferencia = tV - vX
             await fetch(`${API_BASE}?action=registrarCierreDia&fecha=${encodeURIComponent(fechaHoy)}&estado=${estado}&enJuego=${tV}&necesitaba=${vX}&diferencia=${diferencia}`)
             localStorage.setItem('cierreDia', fechaHoy)
-          } catch {} finally { ejecutando = false }
+          } catch {}
         }, ms)
       } catch {}
     }
@@ -228,6 +226,7 @@ export default function App() {
     { key: 'dashboard',     icon: icons.dashboard,  label: 'Panel' },
     { key: 'laboratorio',   icon: icons.activity,   label: 'Laboratorio' },
     { key: 'historialDias', icon: icons.calendar,   label: 'Historial días' },
+    { key: 'notas',         icon: icons.list,        label: 'Notas' },
       ]
 
   return (
@@ -339,6 +338,8 @@ export default function App() {
         {view === 'laboratorio' && <Laboratorio />}
 
         {view === 'historialDias' && <HistorialDias />}
+
+        {view === 'notas' && <Notas />}
 
         {/* ── VER CLIENTE ───────────────────────────────────────────────────── */}
         {view === 'view' && viewingClient && (
