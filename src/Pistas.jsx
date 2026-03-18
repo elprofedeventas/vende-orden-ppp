@@ -1,10 +1,24 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { API_BASE, Icon, icons, fmt, norm, formatFecha, getNowGuayaquil, getTodayLabel, Field, DatePicker, Toast, Highlight, inputStyle, sectionTitle, EMPTY_FORM, DIAS, MESES_LARGO, CARD_STYLE, CARD_STYLE_COMPACT, BTN_PRIMARY, BTN_GHOST, BTN_DANGER, SECTION_HEADER, BADGE_BASE, PILL_STYLE, FLOAT_PANEL } from './shared.jsx'
 
+// ── Parsear fechaRegistro dd/MM/yyyy a Date ──────────────────────────────────
+function parseFechaReg(s) {
+  if (!s) return null
+  const str = s.toString().trim().split(' ')[0]
+  if (str.includes('/')) {
+    const [d, m, y] = str.split('/').map(Number)
+    if (d && m && y) return new Date(y, m - 1, d)
+  }
+  return null
+}
+
 export function PistasView({ onViewPista }) {
-  const [pistas, setPistas] = useState([])
+  const [pistas, setPistas]   = useState([])
   const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
+  const [modo, setModo]       = useState('hoy') // 'hoy' | 'mes' | 'historial'
+  const [search, setSearch]   = useState('')
+  const [desde, setDesde]     = useState('')
+  const [hasta, setHasta]     = useState('')
 
   useEffect(() => {
     fetch(`${API_BASE}?action=getPistas`)
@@ -14,21 +28,71 @@ export function PistasView({ onViewPista }) {
       .finally(() => setLoading(false))
   }, [])
 
+  const hoy = getNowGuayaquil(); hoy.setHours(0,0,0,0)
+  const ayer = new Date(hoy); ayer.setDate(hoy.getDate() - 1)
+  const primeroDeMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1)
+
+  const pistasVista = useMemo(() => {
+    return pistas.filter(p => {
+      const fr = parseFechaReg(p.fechaRegistro)
+      if (!fr) return false
+      if (modo === 'hoy') return fr.getTime() === hoy.getTime()
+      if (modo === 'mes') return fr >= primeroDeMes && fr <= ayer
+      if (modo === 'historial') {
+        const d = desde ? parseFechaReg(desde.split('-').reverse().join('/')) : null
+        const h = hasta ? parseFechaReg(hasta.split('-').reverse().join('/')) : null
+        if (d && fr < d) return false
+        if (h && fr > h) return false
+        return true
+      }
+      return true
+    })
+  }, [pistas, modo, desde, hasta, hoy.getTime()])
+
   const filtered = search.trim()
-    ? pistas.filter(p => norm(p.nombre).includes(norm(search)) || norm(p.negocio).includes(norm(search)) || norm(p.telefono).includes(norm(search)))
-    : pistas
+    ? pistasVista.filter(p => norm(p.nombre).includes(norm(search)) || norm(p.negocio).includes(norm(search)) || norm(p.telefono).includes(norm(search)))
+    : pistasVista
 
   const potencialColor = (p) => p === 'Alto' ? '#16a34a' : p === 'Medio' ? '#d97706' : p === 'Bajo' ? '#dc2626' : 'var(--muted)'
-  const potencialBg    = (p) => p === 'Alto' ? '#f0fdf4' : p === 'Medio' ? '#fffbeb' : p === 'Bajo' ? '#fef2f2' : 'var(--cream)'
+
+  const btnStyle = (active) => ({
+    flex: 1, padding: '8px 4px', border: `1.5px solid ${active ? 'var(--brand)' : 'var(--border)'}`,
+    background: active ? 'var(--brand)' : 'var(--white)', color: active ? 'white' : 'var(--muted)',
+    borderRadius: 'var(--radius)', fontSize: '12px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.15s',
+  })
 
   return (
     <div style={{ animation: 'fadeUp 0.4s ease', paddingBottom: '40px' }}>
-      <div style={{ marginBottom: '20px' }}>
+      <div style={{ marginBottom: '16px' }}>
         <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: '800', fontSize: '28px', letterSpacing: '-0.02em' }}>Pistas</h1>
-        <p style={{ color: 'var(--muted)', fontSize: '14px', marginTop: '4px' }}>{pistas.length} {pistas.length === 1 ? 'pista' : 'pistas'} activas</p>
+        <p style={{ color: 'var(--muted)', fontSize: '14px', marginTop: '4px' }}>{pistasVista.length} {pistasVista.length === 1 ? 'pista' : 'pistas'}</p>
       </div>
 
-      <div style={{ position: 'relative', marginBottom: '20px' }}>
+      {/* Botones de vista */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+        <button style={btnStyle(modo==='hoy')}     onClick={() => setModo('hoy')}>Pistas de hoy</button>
+        <button style={btnStyle(modo==='mes')}     onClick={() => setModo('mes')}>Pistas del mes</button>
+        <button style={btnStyle(modo==='historial')} onClick={() => setModo('historial')}>Historial</button>
+      </div>
+
+      {/* Filtro de fechas para historial */}
+      {modo === 'historial' && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '14px' }}>
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Desde</div>
+            <input type="date" value={desde} onChange={e => setDesde(e.target.value)}
+              style={{ ...inputStyle, fontSize: '13px' }} />
+          </div>
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--muted)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Hasta</div>
+            <input type="date" value={hasta} onChange={e => setHasta(e.target.value)}
+              style={{ ...inputStyle, fontSize: '13px' }} />
+          </div>
+        </div>
+      )}
+
+      {/* Buscador */}
+      <div style={{ position: 'relative', marginBottom: '16px' }}>
         <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)', pointerEvents: 'none' }}><Icon d={icons.search} size={16} /></span>
         <input type="text" placeholder="Buscar por nombre, negocio o teléfono..." value={search} onChange={e => setSearch(e.target.value)}
           style={{ ...inputStyle, paddingLeft: '42px', paddingRight: search ? '42px' : '14px', fontSize: '14px' }} />
@@ -37,16 +101,12 @@ export function PistasView({ onViewPista }) {
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px', color: 'var(--muted)' }}><div style={{ fontSize: '24px', marginBottom: '12px', animation: 'pulse 1s infinite' }}>⏳</div>Cargando pistas...</div>
-      ) : !search.trim() ? (
-        <div style={{ textAlign: 'center', padding: '60px', color: 'var(--muted)' }}>
-          <div style={{ fontSize: '36px', marginBottom: '12px' }}>🔍</div>
-          <div style={{ fontFamily: 'var(--font-display)', fontWeight: '700', marginBottom: '6px' }}>Escribe para buscar</div>
-          <div style={{ fontSize: '14px' }}>Busca por nombre, negocio o teléfono</div>
-        </div>
       ) : filtered.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '60px', background: 'var(--white)', border: '1.5px dashed var(--border)', borderRadius: 'var(--radius-lg)', color: 'var(--muted)' }}>
           <div style={{ fontSize: '36px', marginBottom: '12px' }}>😕</div>
-          <div style={{ fontFamily: 'var(--font-display)', fontWeight: '700' }}>Sin resultados para "{search}"</div>
+          <div style={{ fontFamily: 'var(--font-display)', fontWeight: '700', marginBottom: '6px' }}>
+            {modo === 'hoy' ? 'Sin pistas ingresadas hoy' : modo === 'mes' ? 'Sin pistas en el mes' : 'Sin pistas en ese período'}
+          </div>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -77,6 +137,11 @@ export function PistasView({ onViewPista }) {
                     <span style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: '500', whiteSpace: 'nowrap' }}>
                       {Math.max(1, p.diasEnPista)} {Math.max(1, p.diasEnPista) === 1 ? 'día' : 'días'} en pista
                     </span>
+                    {p.fechaRegistro && (
+                      <span style={{ fontSize: '10px', color: 'var(--muted)', opacity: 0.7, whiteSpace: 'nowrap' }}>
+                        Ingresó: {p.fechaRegistro}
+                      </span>
+                    )}
                   </div>
                 </div>
                 {p.notas && (
@@ -301,7 +366,6 @@ export function EditPista({ pista, onSave, onCancel, showToast }) {
       const data = await res.json()
       if (data.success) {
         showToast(`✓ ${form.nombre} actualizado`)
-        fetch(`${API_BASE}?action=invalidarCache`).catch(() => {})
         onSave({ ...pista, ...form })
       } else {
         showToast('Error al guardar', 'error')
