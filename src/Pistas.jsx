@@ -347,6 +347,12 @@ export function EditPista({ pista, onSave, onCancel, showToast }) {
     fetch(`${API_BASE}?action=getPistasAcciones`).then(r => r.json()).then(d => { if (d.success) setAcciones(d.data) }).catch(() => {})
   }, [])
 
+  const limpiarTelefono = (v) => {
+    let t = v.replace(/\s+/g, '').replace(/-/g, '')
+    if (t.startsWith('+593')) t = '0' + t.slice(4)
+    else if (t.startsWith('593')) t = '0' + t.slice(3)
+    return t
+  }
   const set = (field) => ({ value: form[field], onChange: e => setForm(p => ({ ...p, [field]: e.target.value })) })
 
   const validate = () => {
@@ -366,6 +372,7 @@ export function EditPista({ pista, onSave, onCancel, showToast }) {
       const data = await res.json()
       if (data.success) {
         showToast(`✓ ${form.nombre} actualizado`)
+        fetch(`${API_BASE}?action=invalidarCache`).catch(() => {})
         onSave({ ...pista, ...form })
       } else {
         showToast('Error al guardar', 'error')
@@ -409,7 +416,7 @@ export function EditPista({ pista, onSave, onCancel, showToast }) {
             </div>
             <div>
               <div style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Teléfono *</div>
-              <input {...set('telefono')} type="tel" style={{ ...inputStyle, fontSize: '14px' }} />
+              <input {...set('telefono')} type="tel" onChange={e => setForm(p => ({ ...p, telefono: limpiarTelefono(e.target.value) }))} style={{ ...inputStyle, fontSize: '14px' }} />
               {errors.telefono && <div style={{ fontSize: '12px', color: 'var(--error)', marginTop: '4px' }}>{errors.telefono}</div>}
             </div>
             <div>
@@ -430,7 +437,7 @@ export function EditPista({ pista, onSave, onCancel, showToast }) {
             </div>
             <div>
               <div style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Teléfono de contacto</div>
-              <input {...set('telefonoContacto')} type="tel" style={{ ...inputStyle, fontSize: '14px' }} />
+              <input {...set('telefonoContacto')} type="tel" onChange={e => setForm(p => ({ ...p, telefonoContacto: limpiarTelefono(e.target.value) }))} style={{ ...inputStyle, fontSize: '14px' }} />
             </div>
           </div>
           <div style={{ marginTop: '14px' }}>
